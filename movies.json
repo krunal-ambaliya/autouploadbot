@@ -1,0 +1,120 @@
+[
+    {
+        "movie": "Luck",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "image": "images/Luck.jpg",
+        "downloads": {
+            "480p": "https://shortner.in/r6nS",
+            "720p": "https://shortner.in/r6nS"
+        },
+        "description": "The story of Sam Greenfield, the unluckiest person in the world. Suddenly finding herself in the never-before-seen Land of Luck, she must unite with the magical creatures there to turn her luck around.",
+        "poster_url": "https://res.cloudinary.com/dphscxzb4/image/upload/v1777567316/watchit/ixpzf8hvwydnctjywohk.jpg",
+        "sample_images": [
+            "https://res.cloudinary.com/dphscxzb4/image/upload/v1777567316/watchit/ixpzf8hvwydnctjywohk.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Luck', 'movie', ARRAY['Action'], 2026, 'Hindi', '720p', 'The story of Sam Greenfield, the unluckiest person in the world. Suddenly finding herself in the never-before-seen Land of Luck, she must unite with the magical creatures there to turn her luck around.', 'https://res.cloudinary.com/dphscxzb4/image/upload/v1777567316/watchit/ixpzf8hvwydnctjywohk.jpg', ARRAY['https://res.cloudinary.com/dphscxzb4/image/upload/v1777567316/watchit/ixpzf8hvwydnctjywohk.jpg'], 'https://shortner.in/r6nS', 'https://shortner.in/r6nS', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "TOURIST FAMILY",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "image": "images/TOURIST_FAMILY.jpg",
+        "downloads": {
+            "480p": "https://shortner.in/eWS9W",
+            "720p": "https://shortner.in/eWS9W"
+        },
+        "description": "The story of Sam Greenfield, the unluckiest person in the world. Suddenly finding herself in the never-before-seen Land of Luck, she must unite with the magical creatures there to turn her luck around.",
+        "poster_url": "https://res.cloudinary.com/dphscxzb4/image/upload/v1777568883/watchit/bnji99xnzj1acc88in5e.jpg",
+        "sample_images": [
+            "https://res.cloudinary.com/dphscxzb4/image/upload/v1777568883/watchit/bnji99xnzj1acc88in5e.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'TOURIST FAMILY', 'movie', ARRAY['Action'], 2026, 'Hindi', '720p', 'The story of Sam Greenfield, the unluckiest person in the world. Suddenly finding herself in the never-before-seen Land of Luck, she must unite with the magical creatures there to turn her luck around.', 'https://res.cloudinary.com/dphscxzb4/image/upload/v1777568883/watchit/bnji99xnzj1acc88in5e.jpg', ARRAY['https://res.cloudinary.com/dphscxzb4/image/upload/v1777568883/watchit/bnji99xnzj1acc88in5e.jpg'], 'https://shortner.in/eWS9W', 'https://shortner.in/eWS9W', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Final Destination Bloodlines",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "Plagued by a violent recurring nightmare, college student Stefanie heads home to track down the one person who might be able to break the cycle and save her family from the grisly demise that inevitably awaits them all.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg",
+        "year": "2025",
+        "tmdb_id": 574475,
+        "tmdb_media_type": "movie",
+        "downloads": {
+            "480p": "https://shortner.in/6SZO",
+            "720p": "https://shortner.in/6SZO"
+        },
+        "source_query": "Final Destination 6",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Final Destination Bloodlines', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'Plagued by a violent recurring nightmare, college student Stefanie heads home to track down the one person who might be able to break the cycle and save her family from the grisly demise that inevitably awaits them all.', 'https://image.tmdb.org/t/p/w500/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg', ARRAY['https://image.tmdb.org/t/p/w500/6WxhEvFsauuACfv8HyoVX6mZKFj.jpg'], 'https://shortner.in/6SZO', 'https://shortner.in/6SZO', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Ala Vaikunthapurramuloo",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "Bantu grows up being constantly subjected to his father's scorn. However, when he learns of his real parentage, he decides to carve a place for himself within the family he truly belongs to.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/2rzORJaegE2bbKNVkQXbZCeV0BP.jpg",
+        "year": "2020",
+        "tmdb_id": 628241,
+        "tmdb_media_type": "movie",
+        "downloads": {
+            "480p": "https://link.pocolinks.com/i3A1qPf",
+            "720p": "https://link.pocolinks.com/i3A1qPf"
+        },
+        "source_query": "Ala Vaikunthapurramuloo",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/2rzORJaegE2bbKNVkQXbZCeV0BP.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Ala Vaikunthapurramuloo', 'movie', ARRAY['Action'], 2020, 'Hindi', '720p', 'Bantu grows up being constantly subjected to his father''s scorn. However, when he learns of his real parentage, he decides to carve a place for himself within the family he truly belongs to.', 'https://image.tmdb.org/t/p/w500/2rzORJaegE2bbKNVkQXbZCeV0BP.jpg', ARRAY['https://image.tmdb.org/t/p/w500/2rzORJaegE2bbKNVkQXbZCeV0BP.jpg'], 'https://link.pocolinks.com/i3A1qPf', 'https://link.pocolinks.com/i3A1qPf', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "A Minecraft Movie",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "Four misfits find themselves struggling with ordinary problems when they are suddenly pulled through a mysterious portal into the Overworld: a bizarre, cubic wonderland that thrives on imagination. To get back home, they'll have to master this world while embarking on a magical quest with an unexpected, expert crafter, Steve.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/yFHHfHcUgGAxziP1C3lLt0q2T4s.jpg",
+        "year": "2025",
+        "tmdb_id": 950387,
+        "tmdb_media_type": "movie",
+        "downloads": {
+            "480p": "https://shortner.in/h44i",
+            "720p": "https://shortner.in/h44i"
+        },
+        "source_query": "A Minecraft Movie",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/yFHHfHcUgGAxziP1C3lLt0q2T4s.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'A Minecraft Movie', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'Four misfits find themselves struggling with ordinary problems when they are suddenly pulled through a mysterious portal into the Overworld: a bizarre, cubic wonderland that thrives on imagination. To get back home, they''ll have to master this world while embarking on a magical quest with an unexpected, expert crafter, Steve.', 'https://image.tmdb.org/t/p/w500/yFHHfHcUgGAxziP1C3lLt0q2T4s.jpg', ARRAY['https://image.tmdb.org/t/p/w500/yFHHfHcUgGAxziP1C3lLt0q2T4s.jpg'], 'https://shortner.in/h44i', 'https://shortner.in/h44i', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "The Third Case",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "The Homicide Intervention Team dispatches relentless officer Arjun Sarkar to track down a band of murderers and put an end to their gruesome killing spree.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/wT9tGyFol4RBwkjESXUWeBdnLJn.jpg",
+        "year": "2025",
+        "tmdb_id": 1060046,
+        "tmdb_media_type": "movie",
+        "downloads": {
+            "480p": "https://shortner.in/7Tkte",
+            "720p": "https://shortner.in/7Tkte"
+        },
+        "source_query": "HIT: The Third Case",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/wT9tGyFol4RBwkjESXUWeBdnLJn.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'The Third Case', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'The Homicide Intervention Team dispatches relentless officer Arjun Sarkar to track down a band of murderers and put an end to their gruesome killing spree.', 'https://image.tmdb.org/t/p/w500/wT9tGyFol4RBwkjESXUWeBdnLJn.jpg', ARRAY['https://image.tmdb.org/t/p/w500/wT9tGyFol4RBwkjESXUWeBdnLJn.jpg'], 'https://shortner.in/7Tkte', 'https://shortner.in/7Tkte', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    }
+]
