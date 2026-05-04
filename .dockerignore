@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.git
+.gitignore
+.vscode/
+.idea/
+venv/
+node_modules/
+movies.json
+images/
+package.json
+package-lock.json
+Dockerfile
+.dockerignore
