@@ -4,7 +4,6 @@ from handlers import handle_cancel, handle_continue, handle_manual, handle_messa
 
 
 def main():
-    load_env_file()
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(MessageHandler(filters.ALL, handle_message))

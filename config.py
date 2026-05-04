@@ -1,15 +1,6 @@
 import os
 from pathlib import Path
 
-BOT_TOKEN = "8203882497:AAHWPnRtmp7Ve6PvnsVRF2GsvQmYJsFPsnU"
-DATA_FILE = "movies.json"
-PENDING_KEY = "pending_post"
-DEFAULT_GENRE = ["Action"]
-DEFAULT_TAGS = ["auto", "generated"]
-DEFAULT_TYPE = "movie"
-DEFAULT_STATUS = "published"
-
-
 def load_env_file():
     env_path = Path(__file__).with_name(".env")
     if not env_path.exists():
@@ -26,3 +17,15 @@ def load_env_file():
 
         if key and key not in os.environ:
             os.environ[key] = value
+
+
+# Load environment variables early
+load_env_file()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+DATA_FILE = "movies.json"
+PENDING_KEY = "pending_post"
+DEFAULT_GENRE = ["Action"]
+DEFAULT_TAGS = ["auto", "generated"]
+DEFAULT_TYPE = "movie"
+DEFAULT_STATUS = "published"
