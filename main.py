@@ -2,6 +2,7 @@ import logging
 import os
 import asyncio
 import threading
+import sys
 from flask import Flask, request
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, MessageHandler, filters
@@ -27,6 +28,29 @@ application = ApplicationBuilder().token(BOT_TOKEN).build()
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "").strip()
 WEBHOOK_LOOP = None
 WEBHOOK_THREAD = None
+
+# Determine if we're running in a non-interactive hosted environment.
+# If so, require WEBHOOK_URL to be set (unless FORCE_WEBHOOK is explicitly false).
+def _ensure_webhook_config_or_exit():
+    force = os.environ.get("FORCE_WEBHOOK", "0").lower() in ("1", "true", "yes")
+    if WEBHOOK_URL:
+        return
+
+    # If FORCE_WEBHOOK is set true, fail immediately.
+    if force:
+        logger.critical("WEBHOOK_URL is not set but FORCE_WEBHOOK is true. Set WEBHOOK_URL to your public app URL when deploying.")
+        sys.exit(1)
+
+    # If PORT is present and we're non-interactive, assume hosted deployment and fail with clear message.
+    if "PORT" in os.environ and not sys.stdin.isatty():
+        logger.critical(
+            "WEBHOOK_URL is not set but PORT is present and process is non-interactive.\n"
+            "In hosted deployments (like Koyeb) the app must run in webhook mode.\n"
+            "Set environment variable WEBHOOK_URL to your public app URL (for example https://your-app.koyeb.app) and redeploy.\n"
+            "Alternatively set FORCE_WEBHOOK=false to allow polling (not recommended on hosted platforms)."
+        )
+        sys.exit(1)
+
 
 
 def _start_webhook_loop():
