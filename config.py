@@ -24,7 +24,9 @@ load_env_file()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATA_FILE = "movies.json"
+ADMIN_FILE = "admins.json"
 PENDING_KEY = "pending_post"
+DEFAULT_ADMIN_ID = "1800599162"
 DEFAULT_GENRE = ["Action"]
 DEFAULT_TAGS = ["auto", "generated"]
 DEFAULT_TYPE = "movie"

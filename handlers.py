@@ -8,6 +8,7 @@ from config import PENDING_KEY
 from parsing import build_review_prompt, extract_download_links, parse_message
 from tmdb_service import search_tmdb
 from workflow import finalize_pending_post
+from storage import is_admin, add_admin
 
 
 def extract_query_from_message(text, parsed):
@@ -80,6 +81,35 @@ async def send_preview_message(msg, record, include_continue=True):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
     if not msg:
+        return
+
+    user_id = msg.from_user.id
+    
+    # Check for /addadmin command
+    text = msg.text or msg.caption or ""
+    if text.startswith("/addadmin"):
+        if not is_admin(user_id):
+            await msg.reply_text("❌ You are not authorized to use this command.")
+            return
+        
+        parts = text.split()
+        if len(parts) < 2:
+            await msg.reply_text("Usage: /addadmin {userid}")
+            return
+        
+        try:
+            new_admin_id = parts[1]
+            if add_admin(new_admin_id):
+                await msg.reply_text(f"✅ Admin added: {new_admin_id}")
+            else:
+                await msg.reply_text(f"ℹ️ {new_admin_id} is already an admin.")
+        except Exception as exc:
+            await msg.reply_text(f"❌ Error: {exc}")
+        return
+    
+    # Check if user is authorized
+    if not is_admin(user_id):
+        await msg.reply_text("❌ You are not authorized to use this bot. Only admins can use it.")
         return
 
     text = msg.text or msg.caption or ""
@@ -184,6 +214,11 @@ async def handle_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not query:
         return
 
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
     await query.answer()
     context.chat_data.pop(PENDING_KEY, None)
     if query.message and query.message.caption is not None:
@@ -195,6 +230,11 @@ async def handle_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_continue(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
         return
 
     await query.answer()
@@ -232,6 +272,11 @@ async def handle_search_again(update: Update, context: ContextTypes.DEFAULT_TYPE
     if not query:
         return
 
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
     await query.answer()
     pending = dict(context.chat_data.get(PENDING_KEY) or {})
     pending["stage"] = "awaiting_search_query"
@@ -247,6 +292,11 @@ async def handle_search_again(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def handle_manual(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
         return
 
     await query.answer()
