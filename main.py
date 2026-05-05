@@ -1,5 +1,8 @@
 import logging
-import time
+import os
+import asyncio
+from flask import Flask, request
+from telegram import Bot, Update
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, MessageHandler, filters
 from config import BOT_TOKEN, load_env_file
 from handlers import handle_cancel, handle_continue, handle_manual, handle_message, handle_search_again
@@ -10,36 +13,53 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+app = Flask(__name__)
+bot = Bot(token=BOT_TOKEN)
 
-def main():
-    retry_count = 0
-    max_retries = 5
-    
-    while True:
-        try:
-            app = ApplicationBuilder().token(BOT_TOKEN).build()
-            app.add_handler(MessageHandler(filters.ALL, handle_message))
-            app.add_handler(CallbackQueryHandler(handle_cancel, pattern="^cancel_pending$"))
-            app.add_handler(CallbackQueryHandler(handle_continue, pattern="^tmdb_continue$"))
-            app.add_handler(CallbackQueryHandler(handle_search_again, pattern="^tmdb_search_again$"))
-            app.add_handler(CallbackQueryHandler(handle_manual, pattern="^tmdb_manual$"))
+# Create Application with all handlers
+application = ApplicationBuilder().token(BOT_TOKEN).build()
+application.add_handler(MessageHandler(filters.ALL, handle_message))
+application.add_handler(CallbackQueryHandler(handle_cancel, pattern="^cancel_pending$"))
+application.add_handler(CallbackQueryHandler(handle_continue, pattern="^tmdb_continue$"))
+application.add_handler(CallbackQueryHandler(handle_search_again, pattern="^tmdb_search_again$"))
+application.add_handler(CallbackQueryHandler(handle_manual, pattern="^tmdb_manual$"))
 
-            logger.info("Bot starting...")
-            app.run_polling(allowed_updates=["message", "callback_query"], drop_pending_updates=True)
-        except Exception as e:
-            retry_count += 1
-            logger.error(f"Bot error: {e}. Retry {retry_count}/{max_retries}")
-            
-            if retry_count >= max_retries:
-                logger.critical("Max retries reached. Exiting.")
-                break
-            
-            wait_time = min(60, 2 ** retry_count)
-            logger.info(f"Waiting {wait_time} seconds before restart...")
-            time.sleep(wait_time)
-        else:
-            retry_count = 0
+
+@app.route("/", methods=["GET"])
+def health():
+    return "Bot is running", 200
+
+
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
+def webhook():
+    try:
+        update_data = request.get_json()
+        update = Update.de_json(update_data, bot)
+        
+        asyncio.run(application.process_update(update))
+        return "OK", 200
+    except Exception as e:
+        logger.error(f"Error processing update: {e}")
+        return "Error", 500
+
+
+def set_webhook():
+    """Automatically set webhook URL"""
+    try:
+        webhook_url = os.environ.get("WEBHOOK_URL")
+        if not webhook_url:
+            logger.warning("WEBHOOK_URL not set in environment")
+            return
+        
+        webhook_path = f"{webhook_url}/{BOT_TOKEN}"
+        bot.set_webhook(url=webhook_path)
+        logger.info(f"Webhook set to {webhook_path}")
+    except Exception as e:
+        logger.error(f"Failed to set webhook: {e}")
 
 
 if __name__ == "__main__":
-    main()
+    set_webhook()
+    port = int(os.environ.get("PORT", 8000))
+    logger.info(f"Starting Flask webhook server on port {port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
