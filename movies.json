@@ -116,5 +116,23 @@
         ],
         "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'The Third Case', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'The Homicide Intervention Team dispatches relentless officer Arjun Sarkar to track down a band of murderers and put an end to their gruesome killing spree.', 'https://image.tmdb.org/t/p/w500/wT9tGyFol4RBwkjESXUWeBdnLJn.jpg', ARRAY['https://image.tmdb.org/t/p/w500/wT9tGyFol4RBwkjESXUWeBdnLJn.jpg'], 'https://shortner.in/7Tkte', 'https://shortner.in/7Tkte', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
         "neon_inserted": true
+    },
+    {
+        "movie": "Revelations (2025)",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "downloads": {
+            "480p": "https://inshorturl.com/REVELATIONS480",
+            "720p": "https://inshorturl.com/Revelations720"
+        },
+        "stage": "review",
+        "last_query": "Revelations (2025)",
+        "description": "A pastor who believes in divine revelation and a detective haunted by visions pursue a missing person case.",
+        "poster_url": "https://res.cloudinary.com/dphscxzb4/image/upload/v1778005667/Revelations-%282025%29.jpg",
+        "sample_images": [
+            "https://res.cloudinary.com/dphscxzb4/image/upload/v1778005667/Revelations-%282025%29.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Revelations (2025)', 'movie', ARRAY['Action'], 2026, 'Hindi', '720p', 'A pastor who believes in divine revelation and a detective haunted by visions pursue a missing person case.', 'https://res.cloudinary.com/dphscxzb4/image/upload/v1778005667/Revelations-%282025%29.jpg', ARRAY['https://res.cloudinary.com/dphscxzb4/image/upload/v1778005667/Revelations-%282025%29.jpg'], 'https://inshorturl.com/REVELATIONS480', 'https://inshorturl.com/Revelations720', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
     }
 ]
