@@ -28,6 +28,7 @@ application = ApplicationBuilder().token(BOT_TOKEN).build()
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "").strip()
 WEBHOOK_LOOP = None
 WEBHOOK_THREAD = None
+WEBHOOK_LOOP_READY = None
 
 # Determine if we're running in a non-interactive hosted environment.
 # If so, require WEBHOOK_URL to be set (unless FORCE_WEBHOOK is explicitly false).
@@ -55,8 +56,15 @@ def _ensure_webhook_config_or_exit():
 
 def _start_webhook_loop():
     global WEBHOOK_LOOP
+    global WEBHOOK_LOOP_READY
     WEBHOOK_LOOP = asyncio.new_event_loop()
     asyncio.set_event_loop(WEBHOOK_LOOP)
+    # signal that the loop is ready
+    try:
+        if WEBHOOK_LOOP_READY is not None:
+            WEBHOOK_LOOP_READY.set()
+    except Exception:
+        pass
     WEBHOOK_LOOP.run_forever()
 
 
@@ -72,8 +80,16 @@ def _ensure_webhook_runtime():
     if WEBHOOK_THREAD and WEBHOOK_THREAD.is_alive():
         return
 
+    # create an event to wait until the loop is ready
+    global WEBHOOK_LOOP_READY
+    WEBHOOK_LOOP_READY = threading.Event()
     WEBHOOK_THREAD = threading.Thread(target=_start_webhook_loop, daemon=True)
     WEBHOOK_THREAD.start()
+
+    # wait for the loop to be initialized (avoid race)
+    if not WEBHOOK_LOOP_READY.wait(timeout=10):
+        logger.error("Timed out waiting for webhook event loop to start")
+        raise RuntimeError("Webhook loop failed to start in time")
 
 
 def _register_handlers():
