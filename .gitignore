@@ -137,3 +137,4 @@ cython_debug/
 
 # Node
 node_modules/
+admins.json
