@@ -8,7 +8,7 @@ from telegram.ext import ContextTypes
 from config import PENDING_KEY
 from media_service import resolve_poster_for_title, upload_bytes_to_cloudinary
 from parsing import build_review_prompt, parse_message
-from storage import add_admin, is_admin
+from storage import add_admin, is_admin, remove_admin, get_admins
 from tmdb_service import search_tmdb
 from validation import (
     extract_downloads_from_message,
@@ -27,7 +27,7 @@ def _manual_field_prompt(field_name):
         "description": "Please send movie description text only.",
         "links": (
             "Please send download links with quality.\n"
-            "Example:\n720p https://example.com/file720\n480p https://example.com/file480"
+            "Example:\n480p: https://link1.com\n720p: https://link2.com\n1080p: https://link3.com"
         ),
         "poster": (
             "Please send poster as image URL or upload an image file.\n"
@@ -154,6 +154,24 @@ def extract_query_from_message(text, parsed):
     return (text or "").strip()[:100]
 
 
+def detect_type_from_title(title):
+    if not title:
+        return "movie"
+    # Patterns for series: S01, E01, Season, Complete, Episode
+    series_patterns = [
+        r"S\d{1,2}E\d{1,2}",
+        r"S\d{1,2}",
+        r"Season\s*\d+",
+        r"Episode\s*\d+",
+        r"Complete\s*Season",
+    ]
+    import re
+    for pattern in series_patterns:
+        if re.search(pattern, title, re.IGNORECASE):
+            return "tv"
+    return "movie"
+
+
 def build_preview_record(parsed, downloads, tmdb_details, query_text):
     record = dict(parsed)
     record.pop("image", None)
@@ -163,7 +181,13 @@ def build_preview_record(parsed, downloads, tmdb_details, query_text):
     record["poster_url"] = tmdb_details.get("poster_url")
     record["year"] = tmdb_details.get("year") or record.get("year") or datetime.utcnow().year
     record["tmdb_id"] = tmdb_details.get("tmdb_id")
-    record["tmdb_media_type"] = tmdb_details.get("media_type")
+    
+    # Use TMDB media type if available, otherwise detect from title
+    tmdb_type = tmdb_details.get("media_type")
+    if not tmdb_type:
+        tmdb_type = detect_type_from_title(record["movie"])
+    
+    record["tmdb_media_type"] = tmdb_type
     record["downloads"] = downloads or record.get("downloads", {})
     record["source_query"] = query_text
     record["stage"] = "review"
@@ -172,9 +196,13 @@ def build_preview_record(parsed, downloads, tmdb_details, query_text):
 
 def build_preview_text(record):
     description = record.get("description") or "No description available"
+    media_type = record.get("tmdb_media_type", "movie")
+    type_label = "Series" if media_type == "tv" else "Movie"
+    
     lines = [
         "🔍 *Preview*",
         f"*Title:* {record.get('movie') or 'Untitled'}",
+        f"*Type:* {type_label}",
         f"*Year:* {record.get('year') or 'Unknown'}",
         f"*Description:* {description[:300]}...",
     ]
@@ -191,19 +219,25 @@ def build_preview_text(record):
 async def send_preview_message(msg, record, include_continue=True):
     preview_text = build_preview_text(record)
     poster_url = record.get("poster_url")
+    current_type = record.get("tmdb_media_type", "movie")
+
+    reply_markup = build_review_prompt(
+        include_continue=include_continue, 
+        current_type=current_type
+    )
 
     if poster_url:
         await msg.reply_photo(
             photo=poster_url,
             caption=preview_text,
             parse_mode="Markdown",
-            reply_markup=build_review_prompt(include_continue=include_continue),
+            reply_markup=reply_markup,
         )
     else:
         await msg.reply_text(
             preview_text,
             parse_mode="Markdown",
-            reply_markup=build_review_prompt(include_continue=include_continue),
+            reply_markup=reply_markup,
         )
 
 
@@ -231,6 +265,12 @@ async def _apply_manual_title(msg, context, pending, text):
 
     pending["movie"] = title
     pending["source_query"] = title
+
+    # If it's a fully manual flow, don't search TMDB
+    if pending.get("is_fully_manual"):
+        await _send_manual_confirmation(msg, pending, "title")
+        await _prompt_next_manual_step(msg, context, pending)
+        return
 
     tmdb_details = await asyncio.to_thread(search_tmdb, title)
     if tmdb_details:
@@ -361,6 +401,67 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = msg.from_user.id
     text = msg.text or msg.caption or ""
 
+    if text.startswith("/manual"):
+        if not is_admin(user_id):
+            await msg.reply_text("❌ You are not authorized.")
+            return
+        
+        pending = {
+            "chat_id": msg.chat_id,
+            "stage": "awaiting_manual_title",
+            "is_fully_manual": True,
+            "downloads": {},
+        }
+        _set_pending(context, pending, manual=True)
+        await msg.reply_text("Manual upload started.\n" + _manual_field_prompt("title"))
+        return
+
+    if text.startswith("/start") or text.startswith("/help"):
+        help_text = (
+            "👋 **Welcome to the AutoUpload Bot!**\n\n"
+            "I can help you search TMDB for movie/series metadata and prepare posts for your channel.\n\n"
+            "📜 **Available Commands:**\n"
+            "• /manual - Start a fully manual upload flow.\n"
+            "• /cancel - Stop the current process and start fresh.\n"
+            "• /restart - Reboot the bot (Admins only).\n"
+            "• /addadmin {userid} - Add a new admin (Admins only).\n"
+            "• /removeadmin {userid} - Remove an admin (Master only).\n"
+            "• /listadmins - List all current admins.\n"
+            "• /help - Show this help message.\n\n"
+            "💡 **How to use:**\n"
+            "1. Just send a movie title to search TMDB.\n"
+            "2. Or forward a post with download links.\n"
+            "3. Use the buttons to toggle between Movie/Series or enter details manually."
+        )
+        await msg.reply_text(help_text, parse_mode="Markdown")
+        return
+
+    if text.startswith("/cancel"):
+        if not is_admin(user_id):
+            await msg.reply_text("❌ You are not authorized.")
+            return
+        
+        _cancel_manual_timeout(msg.chat_id)
+        context.chat_data.pop(PENDING_KEY, None)
+        await msg.reply_text("Current process stopped. You can upload manually by using /manual")
+        return
+
+    if text.startswith("/restart"):
+        if not is_admin(user_id):
+            await msg.reply_text("❌ You are not authorized.")
+            return
+        
+        await msg.reply_text("🔄 Restarting bot...")
+        # Small delay to ensure the message is sent
+        await asyncio.sleep(1)
+        
+        import sys
+        import os
+        chat_id = msg.chat_id
+        # Pass the chat_id so we can notify the user after restart
+        os.execv(sys.executable, [sys.executable, sys.argv[0], f"--reboot={chat_id}"])
+        return
+
     if text.startswith("/addadmin"):
         if not is_admin(user_id):
             await msg.reply_text("❌ You are not authorized to use this command.")
@@ -376,6 +477,41 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await msg.reply_text(f"✅ Admin added: {new_admin_id}")
         else:
             await msg.reply_text(f"ℹ️ {new_admin_id} is already an admin.")
+        return
+
+    if text.startswith("/removeadmin"):
+        if not is_admin(user_id):
+            await msg.reply_text("❌ You are not authorized.")
+            return
+
+        parts = text.split()
+        if len(parts) < 2:
+            await msg.reply_text("Usage: /removeadmin {userid}")
+            return
+
+        target_id = parts[1].strip()
+        success, message = remove_admin(target_id)
+        if success:
+            await msg.reply_text(f"✅ {message}")
+        else:
+            await msg.reply_text(f"❌ {message}")
+        return
+
+    if text.startswith("/listadmins"):
+        if not is_admin(user_id):
+            await msg.reply_text("❌ You are not authorized.")
+            return
+
+        admins = get_admins()
+        from config import DEFAULT_ADMIN_ID
+        admin_list = []
+        for a in admins:
+            if str(a) == str(DEFAULT_ADMIN_ID):
+                admin_list.append(f"• {a} (Master)")
+            else:
+                admin_list.append(f"• {a}")
+        
+        await msg.reply_text("👥 **Current Admins:**\n\n" + "\n".join(admin_list), parse_mode="Markdown")
         return
 
     if not is_admin(user_id):
@@ -430,7 +566,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             _schedule_manual_timeout(context.application, msg.chat_id)
             await msg.reply_text(
                 f"Could not find '{query_text}' on TMDB. Send the title manually.",
-                reply_markup=build_review_prompt(include_continue=False),
+                reply_markup=build_review_prompt(include_continue=False, include_search_again=False, include_type_toggle=False),
             )
             return
 
@@ -470,21 +606,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await send_preview_message(msg, record)
             return
 
-        pending = dict(parsed)
-        pending["downloads"] = extracted_downloads or parsed.get("downloads", {})
-        pending["stage"] = "awaiting_manual_title"
-        pending["last_query"] = query_text
+        pending = {
+            "chat_id": msg.chat_id,
+            "downloads": {},
+            "stage": "awaiting_manual_title",
+            "is_fully_manual": True,
+            "last_query": query_text
+        }
         context.chat_data[PENDING_KEY] = pending
         _schedule_manual_timeout(context.application, msg.chat_id)
         await msg.reply_text(
             f"Could not find '{query_text}' on TMDB. Send the title manually.",
-            reply_markup=build_review_prompt(include_continue=False),
+            reply_markup=build_review_prompt(include_continue=False, include_search_again=False, include_type_toggle=False),
         )
         return
 
     await msg.reply_text(
         "I couldn't parse that message. Would you like to search TMDB or enter details manually?",
-        reply_markup=build_review_prompt(include_continue=False),
+        reply_markup=build_review_prompt(include_continue=False, include_search_again=True),
     )
 
 
@@ -542,15 +681,36 @@ async def handle_continue(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
+        status_text = "Checking..."
+        if query.message and query.message.caption is not None:
+            await query.edit_message_caption(caption=status_text)
+        else:
+            await query.edit_message_text(text=status_text)
+        await asyncio.sleep(0.6)
+
+        status_text += "\nConnecting DB..."
+        await query.edit_message_caption(caption=status_text) if query.message.caption is not None else await query.edit_message_text(text=status_text)
+        await asyncio.sleep(0.6)
+
+        status_text += "\nQuery..."
+        await query.edit_message_caption(caption=status_text) if query.message.caption is not None else await query.edit_message_text(text=status_text)
+        
         record, insert_sql = await finalize_pending_post(pending, pending.get("description") or "")
+        
+        status_text += "\nUpdating..."
+        await query.edit_message_caption(caption=status_text) if query.message.caption is not None else await query.edit_message_text(text=status_text)
+        await asyncio.sleep(0.6)
+
         chat_id = query.message.chat_id if query.message else query.from_user.id
         _cancel_manual_timeout(chat_id)
         context.chat_data.pop(PENDING_KEY, None)
+        
         print("\n====== NEON INSERT QUERY ======\n", insert_sql, "\n===============================\n")
+        
         result_text = (
-            "Prepared the Neon insert."
-            f"\nPoster URL: {record.get('poster_url')}"
-            f"\nNeon inserted: {record.get('neon_inserted')}"
+            "✅ Uploaded Successfully!"
+            f"\n\nPoster: {record.get('poster_url')}"
+            f"\nDatabase ID: {record.get('neon_inserted')}"
         )
         if query.message and query.message.caption is not None:
             await query.edit_message_caption(caption=result_text)
@@ -576,6 +736,7 @@ async def handle_search_again(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()
     pending = dict(context.chat_data.get(PENDING_KEY) or {})
     pending["stage"] = "awaiting_search_query"
+    pending["is_fully_manual"] = False
     context.chat_data[PENDING_KEY] = pending
 
     prompt_text = "Send another title to search TMDB."
@@ -596,23 +757,67 @@ async def handle_manual(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     await query.answer()
-    pending = dict(context.chat_data.get(PENDING_KEY) or {})
-    missing_fields = get_missing_record_fields(pending)
-    pending["stage"] = f"awaiting_manual_{missing_fields[0]}" if missing_fields else "review"
+    # Start completely fresh, clear everything including downloads
+    pending = {
+        "chat_id": query.message.chat_id if query.message else query.from_user.id,
+        "downloads": {},
+        "is_fully_manual": True,
+        "stage": "awaiting_manual_title",
+    }
     context.chat_data[PENDING_KEY] = pending
 
-    chat_id = query.message.chat_id if query.message else query.from_user.id
-    if missing_fields:
-        _schedule_manual_timeout(context.application, chat_id)
-        prompt_text = _missing_fields_prompt(missing_fields)
-    else:
-        _cancel_manual_timeout(chat_id)
-        prompt_text = "All fields are ready. Use Continue to finalize."
+    chat_id = pending["chat_id"]
+    _schedule_manual_timeout(context.application, chat_id)
+    prompt_text = "Manual upload started.\n" + _manual_field_prompt("title")
+
+    # Delete the old message to remove the incorrect poster/preview
+    if query.message:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+
+    await context.application.bot.send_message(
+        chat_id=chat_id,
+        text=prompt_text
+    )
+
+
+async def handle_toggle_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
+    await query.answer("Type toggled!")
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    if not pending:
+        return
+
+    current_type = pending.get("tmdb_media_type", "movie")
+    new_type = "tv" if current_type == "movie" else "movie"
+    pending["tmdb_media_type"] = new_type
+    context.chat_data[PENDING_KEY] = pending
+
+    preview_text = build_preview_text(pending)
+    reply_markup = build_review_prompt(include_continue=True, current_type=new_type)
 
     if query.message and query.message.caption is not None:
-        await query.edit_message_caption(caption=prompt_text)
-    else:
-        await query.edit_message_text(text=prompt_text)
+        await query.edit_message_caption(
+            caption=preview_text,
+            parse_mode="Markdown",
+            reply_markup=reply_markup,
+        )
+    elif query.message:
+        await query.edit_message_text(
+            text=preview_text,
+            parse_mode="Markdown",
+            reply_markup=reply_markup,
+        )
 
 
 async def handle_manual_send_again(update: Update, context: ContextTypes.DEFAULT_TYPE):

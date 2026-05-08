@@ -32,12 +32,27 @@ def get_admins():
 
 def add_admin(user_id):
     admins = get_admins()
-    if str(user_id) not in admins:
-        admins.append(str(user_id))
+    user_id_str = str(user_id)
+    if user_id_str not in admins:
+        admins.append(user_id_str)
         with open(ADMIN_FILE, "w", encoding="utf-8") as f:
             json.dump(admins, f, indent=4, ensure_ascii=False)
         return True
     return False
+
+
+def remove_admin(user_id):
+    user_id_str = str(user_id)
+    if user_id_str == str(DEFAULT_ADMIN_ID):
+        return False, "Cannot remove the master admin."
+    
+    admins = get_admins()
+    if user_id_str in admins:
+        admins.remove(user_id_str)
+        with open(ADMIN_FILE, "w", encoding="utf-8") as f:
+            json.dump(admins, f, indent=4, ensure_ascii=False)
+        return True, f"Admin {user_id_str} removed successfully."
+    return False, f"User {user_id_str} is not an admin."
 
 
 def is_admin(user_id):

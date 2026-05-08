@@ -22,25 +22,28 @@ def parse_message(text):
     downloads = {}
 
     lines = text.splitlines()
-    current_quality = None
-
     for line in lines:
         line = line.strip()
-
-        q_match = re.search(r"(480p|720p|1080p|2k|4k)", line, re.IGNORECASE)
-        if q_match:
-            current_quality = q_match.group(1).lower()
-
-        url_match = re.search(r"https?://[^\s]+", line)
-        if url_match and current_quality:
-            downloads[current_quality] = url_match.group(0)
-            current_quality = None
+        if not line:
             continue
 
-        link_match = re.search(r"https://t\.me/[^\s]+", line)
-        if link_match and current_quality:
-            downloads[current_quality] = link_match.group(0)
-            current_quality = None
+        # Check for "quality: link" format
+        q_link_match = re.search(r"(480p|720p|1080p|2k|4k)\s*[:\s-]*\s*(https?://[^\s]+)", line, re.IGNORECASE)
+        if q_link_match:
+            quality = q_link_match.group(1).lower()
+            url = q_link_match.group(2)
+            downloads[quality] = url
+            continue
+
+        # Fallback to multi-line detection
+        q_match = re.search(r"(480p|720p|1080p|2k|4k)", line, re.IGNORECASE)
+        url_match = re.search(r"https?://[^\s]+", line)
+
+        if q_match and url_match:
+            downloads[q_match.group(1).lower()] = url_match.group(0)
+        elif q_match:
+            # Maybe the URL is on the next line? (Old logic handled this poorly, let's stick to single line or explicit pairs)
+            pass
 
     if downloads:
         data["downloads"] = downloads
@@ -95,17 +98,26 @@ def build_description_prompt():
     return InlineKeyboardMarkup(keyboard)
 
 
-def build_review_prompt(include_continue=True):
+def build_review_prompt(include_continue=True, current_type="movie", include_search_again=True, include_type_toggle=True):
     keyboard = []
 
     if include_continue:
         keyboard.append([InlineKeyboardButton("Continue", callback_data="tmdb_continue")])
 
-    keyboard.append(
-        [
-            InlineKeyboardButton("Search again", callback_data="tmdb_search_again"),
-            InlineKeyboardButton("Manual", callback_data="tmdb_manual"),
-        ]
-    )
+    if include_type_toggle:
+        type_label = "Series" if current_type == "tv" else "Movie"
+        keyboard.append(
+            [
+                InlineKeyboardButton(f"Type: {type_label} (Toggle)", callback_data="tmdb_toggle_type"),
+            ]
+        )
+
+    middle_row = []
+    if include_search_again:
+        middle_row.append(InlineKeyboardButton("Search again", callback_data="tmdb_search_again"))
+    
+    middle_row.append(InlineKeyboardButton("Manual", callback_data="tmdb_manual"))
+    keyboard.append(middle_row)
+    
     keyboard.append([InlineKeyboardButton("Cancel", callback_data="cancel_pending")])
     return InlineKeyboardMarkup(keyboard)

@@ -134,5 +134,67 @@
         ],
         "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Revelations (2025)', 'movie', ARRAY['Action'], 2026, 'Hindi', '720p', 'A pastor who believes in divine revelation and a detective haunted by visions pursue a missing person case.', 'https://res.cloudinary.com/dphscxzb4/image/upload/v1778005667/Revelations-%282025%29.jpg', ARRAY['https://res.cloudinary.com/dphscxzb4/image/upload/v1778005667/Revelations-%282025%29.jpg'], 'https://inshorturl.com/REVELATIONS480', 'https://inshorturl.com/Revelations720', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
         "neon_inserted": true
+    },
+    {
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "downloads": {
+            "480p": "https://inshorturl.com/NQINLL",
+            "720p": "https://inshorturl.com/xHE6dHz"
+        },
+        "stage": "review",
+        "last_query": "🎬 Series : DEVIL MAY CRY",
+        "movie": "Devil May Cry",
+        "source_query": "DEVIL MAY CRY",
+        "description": "When a mysterious villain threatens to open the gates of Hell, a devilishly handsome demon hunter could be the world's best hope for salvation.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/mX9tqfpjqwreONJHhap7SnSSowe.jpg",
+        "year": "2025",
+        "tmdb_id": 235930,
+        "tmdb_media_type": "tv",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/mX9tqfpjqwreONJHhap7SnSSowe.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Devil May Cry', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'When a mysterious villain threatens to open the gates of Hell, a devilishly handsome demon hunter could be the world''s best hope for salvation.', 'https://image.tmdb.org/t/p/w500/mX9tqfpjqwreONJHhap7SnSSowe.jpg', ARRAY['https://image.tmdb.org/t/p/w500/mX9tqfpjqwreONJHhap7SnSSowe.jpg'], 'https://inshorturl.com/NQINLL', 'https://inshorturl.com/xHE6dHz', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "chat_id": 1800599162,
+        "stage": "review",
+        "is_fully_manual": true,
+        "downloads": {
+            "480p": "https://link1.com",
+            "720p": "https://link2.com",
+            "1080p": "https://link3.com",
+            "4k": "https://link3.com"
+        },
+        "movie": "interstellar",
+        "source_query": "interstellar",
+        "poster_url": "https://res.cloudinary.com/dphscxzb4/image/upload/v1778237983/interstellar.jpg",
+        "description": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.",
+        "sample_images": [
+            "https://res.cloudinary.com/dphscxzb4/image/upload/v1778237983/interstellar.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'interstellar', 'movie', ARRAY['Action'], 2026, 'Unknown', '4k', 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.', 'https://res.cloudinary.com/dphscxzb4/image/upload/v1778237983/interstellar.jpg', ARRAY['https://res.cloudinary.com/dphscxzb4/image/upload/v1778237983/interstellar.jpg'], 'https://link1.com', 'https://link2.com', 'https://link3.com', NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "chat_id": 1800599162,
+        "downloads": {
+            "480p": "https://link1.com",
+            "720p": "https://link2.com",
+            "1080p": "https://link3.com"
+        },
+        "is_fully_manual": true,
+        "stage": "review",
+        "movie": "Interstellar",
+        "source_query": "Interstellar",
+        "poster_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSngBJ0B7UDrLUkDlp6DCQLsEYuWR-DiHwbnxFFCniB3HiP3f3NZmR1-lKSC34ge6YXu4LX&s=10",
+        "description": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.",
+        "tmdb_media_type": "movie",
+        "sample_images": [
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSngBJ0B7UDrLUkDlp6DCQLsEYuWR-DiHwbnxFFCniB3HiP3f3NZmR1-lKSC34ge6YXu4LX&s=10"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Interstellar', 'movie', ARRAY['Action'], 2026, 'Unknown', '1080p', 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSngBJ0B7UDrLUkDlp6DCQLsEYuWR-DiHwbnxFFCniB3HiP3f3NZmR1-lKSC34ge6YXu4LX&s=10', ARRAY['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSngBJ0B7UDrLUkDlp6DCQLsEYuWR-DiHwbnxFFCniB3HiP3f3NZmR1-lKSC34ge6YXu4LX&s=10'], 'https://link1.com', 'https://link2.com', 'https://link3.com', NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
     }
 ]

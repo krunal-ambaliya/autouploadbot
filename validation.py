@@ -6,12 +6,12 @@ def get_missing_record_fields(record):
 
     if not (record.get("movie") or record.get("title")):
         missing.append("title")
+    if not record.get("poster_url"):
+        missing.append("poster")
     if not record.get("description"):
         missing.append("description")
     if not record.get("downloads"):
         missing.append("links")
-    if not record.get("poster_url"):
-        missing.append("poster")
 
     return missing
 

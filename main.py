@@ -14,6 +14,7 @@ from handlers import (
     handle_manual_send_again,
     handle_message,
     handle_search_again,
+    handle_toggle_type,
 )
 
 logging.basicConfig(
@@ -99,6 +100,7 @@ def _register_handlers():
     application.add_handler(CallbackQueryHandler(handle_search_again, pattern="^tmdb_search_again$"))
     application.add_handler(CallbackQueryHandler(handle_manual, pattern="^tmdb_manual$"))
     application.add_handler(CallbackQueryHandler(handle_manual_send_again, pattern=r"^manual_send_again:"))
+    application.add_handler(CallbackQueryHandler(handle_toggle_type, pattern="^tmdb_toggle_type$"))
 
 
 @app.route("/", methods=["GET"])
@@ -136,6 +138,18 @@ def set_webhook():
         logger.error(f"Failed to set webhook: {e}")
 
 
+async def check_reboot():
+    """Check if the bot was restarted via command and notify the user"""
+    for arg in sys.argv:
+        if arg.startswith("--reboot="):
+            try:
+                chat_id = arg.split("=")[1]
+                await application.bot.send_message(chat_id=chat_id, text="✅ Bot reboot complete!")
+            except Exception as e:
+                logger.error(f"Failed to send reboot message: {e}")
+            break
+
+
 if __name__ == "__main__":
     _register_handlers()
     if WEBHOOK_URL:
@@ -146,8 +160,9 @@ if __name__ == "__main__":
         logger.info(f"Starting Flask webhook server on port {port}")
         app.run(host="0.0.0.0", port=port, debug=False)
     else:
-        logger.info("Starting local polling mode")
         local_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(local_loop)
         local_loop.run_until_complete(application.bot.delete_webhook(drop_pending_updates=True))
+        local_loop.run_until_complete(application.initialize())
+        local_loop.run_until_complete(check_reboot())
         application.run_polling(allowed_updates=["message", "callback_query"], drop_pending_updates=True)
