@@ -159,6 +159,8 @@ if __name__ == "__main__":
     if WEBHOOK_URL:
         _ensure_webhook_runtime()
         _run_webhook_coro(application.initialize())
+        _run_webhook_coro(application.start())
+        _run_webhook_coro(check_reboot())
         set_webhook()
         port = int(os.environ.get("PORT", 8000))
         logger.info(f"Starting Flask webhook server on port {port}")
