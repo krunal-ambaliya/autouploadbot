@@ -16,6 +16,7 @@ from handlers import (
     handle_search_again,
     handle_toggle_type,
 )
+from storage import init_db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -142,6 +143,7 @@ def set_webhook():
 
 
 if __name__ == "__main__":
+    init_db()
     _register_handlers()
     if WEBHOOK_URL:
         _ensure_webhook_runtime()
