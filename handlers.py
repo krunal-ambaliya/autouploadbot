@@ -465,8 +465,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             pass
             
-        # Exit the process. The hosting platform (Koyeb/Render) or the watcher (nodemon) will restart it.
-        os._exit(0)
+        # Exit with a non-zero code. This tells the hosting platform (Koyeb/Render) 
+        # that the process "failed" and should be automatically restarted.
+        os._exit(1)
         return
 
     if text.startswith("/addadmin"):
