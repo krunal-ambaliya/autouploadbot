@@ -458,8 +458,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         import sys
         import os
         chat_id = msg.chat_id
-        # Pass the chat_id so we can notify the user after restart
-        os.execv(sys.executable, [sys.executable, sys.argv[0], f"--reboot={chat_id}"])
+        # Save the chat_id to a file so we can notify the user after restart
+        try:
+            with open("reboot.txt", "w") as f:
+                f.write(str(chat_id))
+        except Exception:
+            pass
+            
+        # Exit the process. The hosting platform (Koyeb/Render) or the watcher (nodemon) will restart it.
+        os._exit(0)
         return
 
     if text.startswith("/addadmin"):

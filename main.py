@@ -140,14 +140,18 @@ def set_webhook():
 
 async def check_reboot():
     """Check if the bot was restarted via command and notify the user"""
-    for arg in sys.argv:
-        if arg.startswith("--reboot="):
-            try:
-                chat_id = arg.split("=")[1]
+    reboot_file = "reboot.txt"
+    if os.path.exists(reboot_file):
+        try:
+            with open(reboot_file, "r") as f:
+                chat_id = f.read().strip()
+            if chat_id:
                 await application.bot.send_message(chat_id=chat_id, text="✅ Bot reboot complete!")
-            except Exception as e:
-                logger.error(f"Failed to send reboot message: {e}")
-            break
+            os.remove(reboot_file)
+        except Exception as e:
+            logger.error(f"Failed to send reboot message: {e}")
+            if os.path.exists(reboot_file):
+                os.remove(reboot_file)
 
 
 if __name__ == "__main__":
