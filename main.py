@@ -138,20 +138,7 @@ def set_webhook():
         logger.error(f"Failed to set webhook: {e}")
 
 
-async def check_reboot():
-    """Check if the bot was restarted via command and notify the user"""
-    reboot_file = "reboot.txt"
-    if os.path.exists(reboot_file):
-        try:
-            with open(reboot_file, "r") as f:
-                chat_id = f.read().strip()
-            if chat_id:
-                await application.bot.send_message(chat_id=chat_id, text="✅ Bot reboot complete!")
-            os.remove(reboot_file)
-        except Exception as e:
-            logger.error(f"Failed to send reboot message: {e}")
-            if os.path.exists(reboot_file):
-                os.remove(reboot_file)
+
 
 
 if __name__ == "__main__":
@@ -160,7 +147,6 @@ if __name__ == "__main__":
         _ensure_webhook_runtime()
         _run_webhook_coro(application.initialize())
         _run_webhook_coro(application.start())
-        _run_webhook_coro(check_reboot())
         set_webhook()
         port = int(os.environ.get("PORT", 8000))
         logger.info(f"Starting Flask webhook server on port {port}")
@@ -170,5 +156,4 @@ if __name__ == "__main__":
         asyncio.set_event_loop(local_loop)
         local_loop.run_until_complete(application.bot.delete_webhook(drop_pending_updates=True))
         local_loop.run_until_complete(application.initialize())
-        local_loop.run_until_complete(check_reboot())
         application.run_polling(allowed_updates=["message", "callback_query"], drop_pending_updates=True)

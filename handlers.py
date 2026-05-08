@@ -423,7 +423,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "📜 **Available Commands:**\n"
             "• /manual - Start a fully manual upload flow.\n"
             "• /cancel - Stop the current process and start fresh.\n"
-            "• /restart - Reboot the bot (Admins only).\n"
             "• /addadmin {userid} - Add a new admin (Admins only).\n"
             "• /removeadmin {userid} - Remove an admin (Master only).\n"
             "• /listadmins - List all current admins.\n"
@@ -446,29 +445,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await msg.reply_text("Current process stopped. You can upload manually by using /manual")
         return
 
-    if text.startswith("/restart"):
-        if not is_admin(user_id):
-            await msg.reply_text("❌ You are not authorized.")
-            return
-        
-        await msg.reply_text("🔄 Restarting bot...")
-        # Small delay to ensure the message is sent
-        await asyncio.sleep(1)
-        
-        import sys
-        import os
-        chat_id = msg.chat_id
-        # Save the chat_id to a file so we can notify the user after restart
-        try:
-            with open("reboot.txt", "w") as f:
-                f.write(str(chat_id))
-        except Exception:
-            pass
-            
-        # Exit with a non-zero code. This tells the hosting platform (Koyeb/Render) 
-        # that the process "failed" and should be automatically restarted.
-        os._exit(1)
-        return
 
     if text.startswith("/addadmin"):
         if not is_admin(user_id):
