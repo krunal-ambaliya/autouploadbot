@@ -25,6 +25,18 @@ def pick_primary_quality(downloads, quality_text=None):
     return None
 
 
+def normalize_media_type(value):
+    if not value:
+        return DEFAULT_TYPE
+
+    normalized = str(value).strip().lower()
+    if normalized == "tv":
+        return "series"
+    if normalized in {"movie", "series"}:
+        return normalized
+    return DEFAULT_TYPE
+
+
 def sql_escape(value):
     return str(value).replace("'", "''")
 
@@ -55,6 +67,7 @@ def build_movie_insert_sql(record):
     language = normalize_language(record.get("audio"))
     description = record.get("description") or f"Auto generated entry for {title}"
     year = record.get("year") or time.gmtime().tm_year
+    media_type = normalize_media_type(record.get("type") or record.get("tmdb_media_type"))
 
     download_columns = {
         "download_480p": downloads.get("480p"),
@@ -84,7 +97,7 @@ def build_movie_insert_sql(record):
 
     values = [
         sql_value(title),
-        sql_value(record.get("type") or DEFAULT_TYPE),
+        sql_value(media_type),
         sql_array(record.get("genre") or DEFAULT_GENRE),
         sql_value(int(year)),
         sql_value(language),

@@ -15,6 +15,7 @@ from validation import (
     get_missing_record_fields,
 )
 from workflow import finalize_pending_post
+from sql_utils import normalize_media_type
 
 
 MANUAL_TIMEOUT_SECONDS = 300
@@ -188,6 +189,7 @@ def build_preview_record(parsed, downloads, tmdb_details, query_text):
         tmdb_type = detect_type_from_title(record["movie"])
     
     record["tmdb_media_type"] = tmdb_type
+    record["type"] = normalize_media_type(tmdb_type)
     record["downloads"] = downloads or record.get("downloads", {})
     record["source_query"] = query_text
     record["stage"] = "review"
@@ -691,11 +693,15 @@ async def handle_continue(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         print("\n====== NEON INSERT QUERY ======\n", insert_sql, "\n===============================\n")
         
-        result_text = (
-            "✅ Uploaded Successfully!"
-            f"\n\nPoster: {record.get('poster_url')}"
-            f"\nDatabase ID: {record.get('neon_inserted')}"
-        )
+        if not record.get('neon_inserted'):
+            result_text = "❌ Database upload FAILED! Check logs for error details."
+        else:
+            result_text = (
+                "✅ Uploaded Successfully!"
+                f"\n\nPoster: {record.get('poster_url')}"
+                f"\nDatabase ID: {record.get('neon_inserted')}"
+            )
+        
         if query.message and query.message.caption is not None:
             await query.edit_message_caption(caption=result_text)
         else:
@@ -785,6 +791,7 @@ async def handle_toggle_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
     current_type = pending.get("tmdb_media_type", "movie")
     new_type = "tv" if current_type == "movie" else "movie"
     pending["tmdb_media_type"] = new_type
+    pending["type"] = normalize_media_type(new_type)
     context.chat_data[PENDING_KEY] = pending
 
     preview_text = build_preview_text(pending)

@@ -122,36 +122,53 @@ def execute_neon_query(sql_query):
     """Executes a query (INSERT, UPDATE, DELETE, CREATE)."""
     conn = _get_connection()
     if not conn:
+        logger.error("Failed to get database connection")
         return False
 
     try:
-        with conn:
-            with conn.cursor() as cur:
-                cur.execute(sql_query)
+        with conn.cursor() as cur:
+            cur.execute(sql_query)
+            rows_affected = cur.rowcount
+        
+        conn.commit()
+        logger.info(f"Query executed successfully. Rows affected: {rows_affected}")
         return True
     except Exception as e:
-        logger.error(f"Database query error: {e}")
+        try:
+            conn.rollback()
+        except:
+            pass
+        logger.error(f"❌ DATABASE ERROR: {str(e)}")
+        logger.error(f"Query that failed:\n{sql_query}")
         return False
     finally:
-        conn.close()
+        try:
+            conn.close()
+        except:
+            pass
 
 
 def execute_neon_fetch(sql_query):
     """Executes a SELECT query and returns rows."""
     conn = _get_connection()
     if not conn:
+        logger.error("Failed to get database connection")
         return None
 
     try:
-        with conn:
-            with conn.cursor() as cur:
-                cur.execute(sql_query)
-                return cur.fetchall()
+        with conn.cursor() as cur:
+            cur.execute(sql_query)
+            result = cur.fetchall()
+        return result
     except Exception as e:
-        logger.error(f"Database fetch error: {e}")
+        logger.error(f"❌ DATABASE FETCH ERROR: {str(e)}")
+        logger.error(f"Query that failed:\n{sql_query}")
         return None
     finally:
-        conn.close()
+        try:
+            conn.close()
+        except:
+            pass
 
 # Alias for backward compatibility
 execute_neon_insert = execute_neon_query

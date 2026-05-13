@@ -24,6 +24,8 @@ async def finalize_pending_post(pending, description):
     record = dict(pending)
     record["description"] = description.strip()
     record = ensure_poster_url(record)
+    if not record.get("type") and record.get("tmdb_media_type"):
+        record["type"] = record["tmdb_media_type"]
 
     if not record.get("poster_url"):
         raise ValueError("Poster image is required before finalizing the post.")
