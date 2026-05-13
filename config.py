@@ -23,6 +23,7 @@ def load_env_file():
 load_env_file()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
 DATA_FILE = "movies.json"
 ADMIN_FILE = "admins.json"
 PENDING_KEY = "pending_post"

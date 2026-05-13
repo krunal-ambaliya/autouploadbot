@@ -2,6 +2,7 @@ import asyncio
 from sql_utils import build_movie_insert_sql
 from storage import execute_neon_insert, save_to_json
 from media_service import resolve_poster_for_title
+from notification_service import send_channel_notification
 
 
 def ensure_poster_url(record):
@@ -39,4 +40,8 @@ async def finalize_pending_post(pending, description):
     record["neon_inserted"] = await asyncio.to_thread(execute_neon_insert, insert_sql)
 
     save_to_json(record)
+    
+    # Send notification to Telegram channel
+    await send_channel_notification(record)
+    
     return record, insert_sql
