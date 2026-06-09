@@ -10,6 +10,7 @@ import requests
 
 IMDB_FIND_URL = "https://www.imdb.com/find/"
 IMDB_BASE_URL = "https://www.imdb.com"
+IMDB_SEARCH_API_URL = "https://api.imdbapi.dev/search/titles"
 CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/{cloud_name}/image/upload"
 
 
@@ -51,6 +52,113 @@ def _request_headers():
             "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         )
     }
+
+
+def _normalize_imdb_media_type(value):
+    normalized = str(value or "").strip().lower()
+    if not normalized:
+        return "movie"
+
+    if normalized in {
+        "tv",
+        "tvseries",
+        "tv series",
+        "tvminiseries",
+        "tv mini series",
+        "tvmini-series",
+        "tvepisode",
+        "tv episode",
+        "tvmovie",
+        "tv movie",
+        "series",
+        "mini series",
+        "miniseries",
+        "show",
+    }:
+        return "tv"
+
+    return "movie"
+
+
+def _safe_text(value):
+    if isinstance(value, str):
+        return value.strip()
+    return ""
+
+
+def _extract_imdb_result(item):
+    title = (
+        _safe_text(item.get("primaryTitle"))
+        or _safe_text(item.get("title"))
+        or _safe_text((item.get("titleText") or {}).get("text"))
+        or _safe_text((item.get("nameText") or {}).get("text"))
+        or "Untitled"
+    )
+
+    year = item.get("startYear") or item.get("year")
+    if isinstance(year, dict):
+        year = year.get("year") or year.get("value")
+    if year is not None:
+        year = str(year)
+
+    poster_url = (
+        (item.get("primaryImage") or {}).get("url")
+        or item.get("image")
+        or item.get("poster")
+        or item.get("posterUrl")
+    )
+
+    description = (
+        _safe_text(item.get("description"))
+        or _safe_text(item.get("plot"))
+        or _safe_text(item.get("overview"))
+        or _safe_text(item.get("shortDescription"))
+        or _safe_text((item.get("plot") or {}).get("plotText"))
+    )
+
+    imdb_id = item.get("id") or item.get("titleId") or item.get("imdbId")
+    source_url = item.get("url")
+    if not source_url and imdb_id:
+        source_url = f"{IMDB_BASE_URL}/title/{imdb_id}/"
+
+    return {
+        "tmdb_id": imdb_id,
+        "title": title,
+        "year": year,
+        "poster_url": poster_url,
+        "description": description,
+        "media_type": _normalize_imdb_media_type(
+            item.get("type") or item.get("titleType") or item.get("kind")
+        ),
+        "source_url": source_url,
+        "source_provider": "imdbapi.dev",
+    }
+
+
+def search_imdb_titles(query, limit=15):
+    if not query:
+        return []
+
+    response = requests.get(
+        IMDB_SEARCH_API_URL,
+        params={"query": query},
+        headers=_request_headers(),
+        timeout=20,
+    )
+    response.raise_for_status()
+
+    payload = response.json() or {}
+    items = payload.get("titles") or payload.get("results") or payload.get("data") or []
+    if isinstance(items, dict):
+        items = items.get("titles") or items.get("results") or items.get("data") or []
+
+    results = []
+    for item in items[:limit]:
+        if not isinstance(item, dict):
+            continue
+        results.append(_extract_imdb_result(item))
+
+    return results
 
 
 def scrape_poster_from_imdb(query):

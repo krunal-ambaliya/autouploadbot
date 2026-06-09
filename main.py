@@ -10,13 +10,17 @@ from config import BOT_TOKEN, load_env_file
 from handlers import (
     handle_cancel,
     handle_continue,
+    handle_edit_cancel,
+    handle_edit_field,
+    handle_imdb_results_page,
+    handle_imdb_select,
     handle_manual,
     handle_manual_send_again,
     handle_message,
     handle_search_again,
     handle_toggle_type,
 )
-from storage import init_db
+from storage import get_admins, init_db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -102,6 +106,10 @@ def _register_handlers():
     application.add_handler(CallbackQueryHandler(handle_manual, pattern="^tmdb_manual$"))
     application.add_handler(CallbackQueryHandler(handle_manual_send_again, pattern=r"^manual_send_again:"))
     application.add_handler(CallbackQueryHandler(handle_toggle_type, pattern="^tmdb_toggle_type$"))
+    application.add_handler(CallbackQueryHandler(handle_edit_field, pattern=r"^edit_field:[^:]+$"))
+    application.add_handler(CallbackQueryHandler(handle_edit_cancel, pattern="^edit_cancel$"))
+    application.add_handler(CallbackQueryHandler(handle_imdb_select, pattern=r"^imdb_select:\d+$"))
+    application.add_handler(CallbackQueryHandler(handle_imdb_results_page, pattern=r"^imdb_results_page:\d+$"))
 
 
 @app.route("/", methods=["GET"])
@@ -139,6 +147,19 @@ def set_webhook():
         logger.error(f"Failed to set webhook: {e}")
 
 
+async def _send_restart_message():
+    admins = get_admins()
+    if not admins:
+        logger.warning("No admins configured. Skipping restart message.")
+        return
+
+    for admin_id in admins:
+        try:
+            await application.bot.send_message(chat_id=admin_id, text="bot restarted")
+        except Exception as e:
+            logger.error(f"Failed to send restart message to {admin_id}: {e}")
+
+
 
 
 
@@ -150,6 +171,7 @@ if __name__ == "__main__":
         _run_webhook_coro(application.initialize())
         _run_webhook_coro(application.start())
         set_webhook()
+        _run_webhook_coro(_send_restart_message())
         port = int(os.environ.get("PORT", 8000))
         logger.info(f"Starting Flask webhook server on port {port}")
         app.run(host="0.0.0.0", port=port, debug=False)
@@ -158,4 +180,5 @@ if __name__ == "__main__":
         asyncio.set_event_loop(local_loop)
         local_loop.run_until_complete(application.bot.delete_webhook(drop_pending_updates=True))
         local_loop.run_until_complete(application.initialize())
+        local_loop.run_until_complete(_send_restart_message())
         application.run_polling(allowed_updates=["message", "callback_query"], drop_pending_updates=True)

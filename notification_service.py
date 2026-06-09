@@ -1,4 +1,5 @@
 import asyncio
+import html
 import logging
 from telegram import Bot
 from telegram.error import TelegramError
@@ -19,24 +20,36 @@ def format_channel_message(record):
     # Build quality/links section
     links_text = ""
     if downloads:
-        links_text = "\n\n🔗 **Download Links:**\n"
+        links_text = "\n\n🔗 <b>Download Links:</b>\n"
         for quality, link in downloads.items():
             quality_upper = quality.upper() if quality else "UNKNOWN"
-            links_text += f"{quality_upper}: {link}\n"
+            links_text += f"{html.escape(quality_upper)}: {html.escape(str(link), quote=False)}\n"
     
     # Format message
     message = f"""
-🎬 **NEW {media_type} UPLOADED!**
+🎬 <b>NEW {html.escape(media_type)} UPLOADED!</b>
 
-**Title:** {title}
-**Year:** {year}
-**Type:** {media_type}
+<b>Title:</b> {html.escape(str(title))}
+<b>Year:</b> {html.escape(str(year))}
+<b>Type:</b> {html.escape(str(media_type))}
 
-📝 **Description:**
-{description}{links_text}
+📝 <b>Description:</b>
+{html.escape(description)}{links_text}
     """.strip()
     
     return message
+
+
+def _get_notification_image(record):
+    poster_url = record.get("poster_url")
+    if poster_url:
+        return poster_url
+
+    sample_images = record.get("sample_images") or []
+    if sample_images:
+        return sample_images[0]
+
+    return None
 
 
 async def send_channel_notification(record):
@@ -48,11 +61,44 @@ async def send_channel_notification(record):
     try:
         bot = Bot(token=BOT_TOKEN)
         message_text = format_channel_message(record)
+        image_url = _get_notification_image(record)
+
+        if image_url:
+            if len(message_text) <= 1024:
+                await bot.send_photo(
+                    chat_id=TELEGRAM_CHANNEL_ID,
+                    photo=image_url,
+                    caption=message_text,
+                    parse_mode="HTML",
+                )
+                logger.info(f"Channel notification sent for: {record.get('movie')}")
+                return
+
+            short_caption = (
+                f"🎬 <b>NEW {html.escape(str(record.get('type', 'movie')).upper())} UPLOADED!</b>\n"
+                f"<b>Title:</b> {html.escape(str(record.get('movie') or 'Unknown'))}\n"
+                f"<b>Year:</b> {html.escape(str(record.get('year') or 'N/A'))}"
+            )
+            await bot.send_photo(
+                chat_id=TELEGRAM_CHANNEL_ID,
+                photo=image_url,
+                caption=short_caption,
+                parse_mode="HTML",
+            )
+
+            await bot.send_message(
+                chat_id=TELEGRAM_CHANNEL_ID,
+                text=message_text,
+                parse_mode="HTML",
+                disable_web_page_preview=True,
+            )
+            logger.info(f"Channel notification sent for: {record.get('movie')}")
+            return
         
         await bot.send_message(
             chat_id=TELEGRAM_CHANNEL_ID,
             text=message_text,
-            parse_mode="Markdown",
+            parse_mode="HTML",
             disable_web_page_preview=True
         )
         

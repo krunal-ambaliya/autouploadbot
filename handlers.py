@@ -6,8 +6,13 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from config import PENDING_KEY
-from media_service import resolve_poster_for_title, upload_bytes_to_cloudinary
-from parsing import build_review_prompt, parse_message
+from media_service import resolve_poster_for_title, search_imdb_titles, upload_bytes_to_cloudinary
+from parsing import (
+    build_imdb_results_markup,
+    build_imdb_results_text,
+    build_review_prompt,
+    parse_message,
+)
 from storage import add_admin, is_admin, remove_admin, get_admins
 from tmdb_service import search_tmdb
 from validation import (
@@ -24,7 +29,11 @@ MANUAL_TIMEOUTS = {}
 
 def _manual_field_prompt(field_name):
     prompts = {
-        "title": "Please send movie title only.\nExample: Interstellar",
+        "title": (
+            "Please send movie title only.\n"
+            "Example: Interstellar\n"
+            "I will search IMDb and show matching results."
+        ),
         "description": "Please send movie description text only.",
         "links": (
             "Please send download links with quality.\n"
@@ -45,6 +54,34 @@ def _manual_confirmation_markup(field_name):
             InlineKeyboardButton("Cancel", callback_data="cancel_pending"),
         ]]
     )
+
+
+def _edit_cancel_markup():
+    return InlineKeyboardMarkup(
+        [[InlineKeyboardButton("Cancel", callback_data="edit_cancel")]]
+    )
+
+
+def _edit_field_prompt(field_name, pending):
+    movie = pending.get("movie") or pending.get("title") or "Untitled"
+    current_title = f"Current: {movie}"
+    prompts = {
+        "movie": f"Send new title/name only.\n{current_title}",
+        "type": f"Send new type: Movie or Series.\nCurrent: {pending.get('tmdb_media_type') or pending.get('type') or 'movie'}",
+        "year": f"Send new year only.\nCurrent: {pending.get('year') or 'Set'}",
+        "description": f"Send new description text only.\n{current_title}",
+        "audio": f"Send new language text only.\nCurrent: {pending.get('audio') or pending.get('language') or 'Set'}",
+        "poster_url": f"Send new poster URL or upload an image.\nCurrent: {pending.get('poster_url') or 'Set'}",
+        "480p": f"Send new 480p download link only.\nCurrent: {(pending.get('downloads') or {}).get('480p') or 'Set'}",
+        "720p": f"Send new 720p download link only.\nCurrent: {(pending.get('downloads') or {}).get('720p') or 'Set'}",
+        "1080p": f"Send new 1080p download link only.\nCurrent: {(pending.get('downloads') or {}).get('1080p') or 'Set'}",
+        "2k": f"Send new 2k download link only.\nCurrent: {(pending.get('downloads') or {}).get('2k') or 'Set'}",
+        "links": (
+            "Send all download links in quality:link format.\n"
+            "Example:\n480p: https://link1.com\n720p: https://link2.com\n1080p: https://link3.com"
+        ),
+    }
+    return prompts.get(field_name, "Send the replacement value."), _edit_cancel_markup()
 
 
 def _manual_value_summary(field_name, pending):
@@ -98,13 +135,20 @@ def _schedule_manual_timeout(application, chat_id):
             pending = chat_data.get(PENDING_KEY)
             if not pending:
                 return
-            if not str(pending.get("stage") or "").startswith("awaiting_manual"):
+            stage = str(pending.get("stage") or "")
+            if not (stage.startswith("awaiting_manual") or stage.startswith("awaiting_edit_") or stage == "awaiting_imdb_selection"):
                 return
+
+            reminder_text = "No response for 5 minutes. Please resend the missing details."
+            if stage == "awaiting_imdb_selection":
+                reminder_text = "No response for 5 minutes. Please select a result or send another title."
+            elif stage.startswith("awaiting_edit_"):
+                reminder_text = "No response for 5 minutes. Please send the replacement value or cancel."
 
             asyncio.run(
                 application.bot.send_message(
                     chat_id=chat_id,
-                    text="No response for 5 minutes. Please resend the missing details.",
+                    text=reminder_text,
                 )
             )
         finally:
@@ -198,14 +242,16 @@ def build_preview_record(parsed, downloads, tmdb_details, query_text):
 
 def build_preview_text(record):
     description = record.get("description") or "No description available"
-    media_type = record.get("tmdb_media_type", "movie")
-    type_label = "Series" if media_type == "tv" else "Movie"
+    media_type = record.get("tmdb_media_type") or record.get("type") or "movie"
+    type_label = "Series" if media_type in {"tv", "series"} else "Movie"
+    language = record.get("audio") or record.get("language") or "Unknown"
     
     lines = [
         "🔍 *Preview*",
         f"*Title:* {record.get('movie') or 'Untitled'}",
         f"*Type:* {type_label}",
         f"*Year:* {record.get('year') or 'Unknown'}",
+        f"*Language:* {language}",
         f"*Description:* {description[:300]}...",
     ]
 
@@ -224,6 +270,7 @@ async def send_preview_message(msg, record, include_continue=True):
     current_type = record.get("tmdb_media_type", "movie")
 
     reply_markup = build_review_prompt(
+        record=record,
         include_continue=include_continue, 
         current_type=current_type
     )
@@ -258,8 +305,120 @@ async def _prompt_next_manual_step(msg, context, pending):
     return True
 
 
+async def _send_review_preview(msg, pending, context=None):
+    if context is not None:
+        context.chat_data[PENDING_KEY] = pending
+
+    pending["stage"] = "review"
+    if msg:
+        await send_preview_message(msg, pending)
+
+
+async def _prompt_edit_field(msg, context, pending, field_name):
+    pending["stage"] = f"awaiting_edit_{field_name}"
+    pending["edit_field"] = field_name
+    context.chat_data[PENDING_KEY] = pending
+
+    prompt_text, reply_markup = _edit_field_prompt(field_name, pending)
+    await msg.reply_text(prompt_text, reply_markup=reply_markup, disable_web_page_preview=True)
+
+
+def _normalize_edit_type(value):
+    normalized = (value or "").strip().lower()
+    if normalized in {"movie", "film"}:
+        return "movie"
+    if normalized in {"series", "tv", "show"}:
+        return "tv"
+    return None
+
+
+async def _apply_edit_value(msg, context, pending, field_name, text):
+    value = (text or "").strip()
+
+    if field_name == "movie":
+        if not value:
+            await msg.reply_text("Please send a valid title.")
+            return
+        pending["movie"] = value
+        pending["source_query"] = value
+
+    elif field_name == "type":
+        normalized_type = _normalize_edit_type(value)
+        if not normalized_type:
+            await msg.reply_text("Please send Movie or Series.")
+            return
+        pending["tmdb_media_type"] = normalized_type
+        pending["type"] = normalize_media_type(normalized_type)
+
+    elif field_name == "year":
+        if not value.isdigit():
+            await msg.reply_text("Please send a valid year like 2025.")
+            return
+        pending["year"] = int(value)
+
+    elif field_name == "description":
+        if not value:
+            await msg.reply_text("Please send a valid description.")
+            return
+        pending["description"] = value
+
+    elif field_name == "audio":
+        if not value:
+            await msg.reply_text("Please send a valid language.")
+            return
+        pending["audio"] = value
+
+    elif field_name == "poster_url":
+        poster_url = _extract_image_url_from_message(msg)
+        if not poster_url and getattr(msg, "photo", None):
+            try:
+                best_photo = msg.photo[-1]
+                tg_file = await context.application.bot.get_file(best_photo.file_id)
+                image_bytes = await tg_file.download_as_bytearray()
+                uploaded = await asyncio.to_thread(
+                    upload_bytes_to_cloudinary,
+                    bytes(image_bytes),
+                    "poster.jpg",
+                    (pending.get("movie") or "poster").strip().replace(" ", "-")[:80],
+                )
+                poster_url = uploaded
+            except Exception:
+                poster_url = None
+
+        if not poster_url:
+            await msg.reply_text("Please send a valid poster URL or upload an image.")
+            return
+        pending["poster_url"] = poster_url
+
+    elif field_name in {"480p", "720p", "1080p", "2k"}:
+        if not value:
+            await msg.reply_text("Please send a valid download link.")
+            return
+        downloads = dict(pending.get("downloads") or {})
+        downloads[field_name] = value
+        pending["downloads"] = downloads
+
+    elif field_name == "links":
+        parsed = parse_message(text)
+        downloads = extract_downloads_from_message(msg, parsed)
+        if not downloads:
+            await msg.reply_text("Please send at least one valid download link.")
+            return
+        pending_downloads = dict(pending.get("downloads") or {})
+        pending_downloads.update(downloads)
+        pending["downloads"] = pending_downloads
+
+    else:
+        await msg.reply_text("Unknown field.")
+        return
+
+    pending.pop("edit_field", None)
+    await _send_review_preview(msg, pending, context)
+
+
 async def _apply_manual_title(msg, context, pending, text):
-    title = text.strip()
+    parsed = parse_message(text)
+    title = extract_query_from_message(text, parsed).strip()
     if not title:
         await msg.reply_text("Please send the title.")
         _schedule_manual_timeout(context.application, msg.chat_id)
@@ -268,38 +427,45 @@ async def _apply_manual_title(msg, context, pending, text):
     pending["movie"] = title
     pending["source_query"] = title
 
-    # If it's a fully manual flow, don't search TMDB
-    if pending.get("is_fully_manual"):
+    imdb_results = await asyncio.to_thread(search_imdb_titles, title)
+    if imdb_results:
+        pending["imdb_search_results"] = imdb_results
+        pending["imdb_search_query"] = title
+        pending["imdb_search_page"] = 1
+        pending["stage"] = "awaiting_imdb_selection"
+        context.chat_data[PENDING_KEY] = pending
+        _schedule_manual_timeout(context.application, msg.chat_id)
+        await msg.reply_text(
+            build_imdb_results_text(title, imdb_results, page=1),
+            reply_markup=build_imdb_results_markup(imdb_results, page=1),
+            disable_web_page_preview=True,
+        )
+        return
+
+    fallback = await asyncio.to_thread(resolve_poster_for_title, title)
+    if fallback:
+        if fallback.get("title"):
+            pending["movie"] = fallback.get("title")
+        if fallback.get("description") and not pending.get("description"):
+            pending["description"] = fallback.get("description")
+        if fallback.get("poster_url"):
+            pending["poster_url"] = fallback.get("poster_url")
+        if fallback.get("year") and not pending.get("year"):
+            pending["year"] = fallback.get("year")
+
+        pending["tmdb_media_type"] = detect_type_from_title(pending.get("movie") or title)
+        pending["stage"] = "review"
+        context.chat_data[PENDING_KEY] = pending
         await _send_manual_confirmation(msg, pending, "title")
         await _prompt_next_manual_step(msg, context, pending)
         return
 
-    tmdb_details = await asyncio.to_thread(search_tmdb, title)
-    if tmdb_details:
-        if tmdb_details.get("title"):
-            pending["movie"] = tmdb_details.get("title")
-        if tmdb_details.get("description") and not pending.get("description"):
-            pending["description"] = tmdb_details.get("description")
-        if tmdb_details.get("poster_url"):
-            pending["poster_url"] = tmdb_details.get("poster_url")
-        if tmdb_details.get("year"):
-            pending["year"] = tmdb_details.get("year")
-        pending["tmdb_id"] = tmdb_details.get("tmdb_id")
-        pending["tmdb_media_type"] = tmdb_details.get("media_type")
-    else:
-        fallback = await asyncio.to_thread(resolve_poster_for_title, title)
-        if fallback:
-            if fallback.get("title") and not pending.get("movie"):
-                pending["movie"] = fallback.get("title")
-            if fallback.get("description") and not pending.get("description"):
-                pending["description"] = fallback.get("description")
-            if fallback.get("poster_url"):
-                pending["poster_url"] = fallback.get("poster_url")
-            if fallback.get("year") and not pending.get("year"):
-                pending["year"] = fallback.get("year")
-
-    await _send_manual_confirmation(msg, pending, "title")
-    await _prompt_next_manual_step(msg, context, pending)
+    pending["stage"] = "awaiting_manual_title"
+    context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(context.application, msg.chat_id)
+    await msg.reply_text(
+        f"No IMDb results found for '{title}'. Please send another title."
+    )
 
 
 async def _apply_manual_description(msg, context, pending, text):
@@ -387,6 +553,15 @@ async def _handle_manual_stage(update: Update, context: ContextTypes.DEFAULT_TYP
         await _apply_manual_poster(msg, context, pending, text)
         return
 
+    if stage.startswith("awaiting_edit_"):
+        field_name = stage.replace("awaiting_edit_", "", 1)
+        await _apply_edit_value(msg, context, pending, field_name, text)
+        return
+
+    if stage == "awaiting_imdb_selection":
+        await msg.reply_text("Please choose one of the search result buttons above, or use Search again.")
+        return
+
     if stage == "review":
         await msg.reply_text("Please use the buttons above to Continue or Search again.")
         return
@@ -415,7 +590,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "downloads": {},
         }
         _set_pending(context, pending, manual=True)
-        await msg.reply_text("Manual upload started.\n" + _manual_field_prompt("title"))
+        await msg.reply_text(
+            "Manual upload started.\n"
+            "Please send movie title only.\n"
+            "Example: Interstellar\n"
+            "I will search IMDb and show matching results."
+        )
         return
 
     if text.startswith("/start") or text.startswith("/help"):
@@ -430,7 +610,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• /listadmins - List all current admins.\n"
             "• /help - Show this help message.\n\n"
             "💡 **How to use:**\n"
-            "1. Just send a movie title to search TMDB.\n"
+            "1. Just send a movie title to search for metadata.\n"
             "2. Or forward a post with download links.\n"
             "3. Use the buttons to toggle between Movie/Series or enter details manually."
         )
@@ -507,7 +687,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     pending = context.chat_data.get(PENDING_KEY)
     if pending:
         stage = pending.get("stage") or ""
-        if stage.startswith("awaiting_manual") or stage == "review":
+        if stage.startswith("awaiting_manual") or stage.startswith("awaiting_edit_") or stage in {"review", "awaiting_imdb_selection"}:
             await _handle_manual_stage(update, context, pending)
             return
 
@@ -723,17 +903,53 @@ async def handle_search_again(update: Update, context: ContextTypes.DEFAULT_TYPE
         await query.answer("You are not authorized.", show_alert=True)
         return
 
-    await query.answer()
     pending = dict(context.chat_data.get(PENDING_KEY) or {})
-    pending["stage"] = "awaiting_search_query"
+    query_text = (
+        pending.get("movie")
+        or pending.get("source_query")
+        or pending.get("imdb_search_query")
+        or pending.get("last_query")
+        or ""
+    ).strip()
+
+    if not query_text:
+        await query.answer("No title available to search.", show_alert=True)
+        return
+
+    results = await asyncio.to_thread(search_imdb_titles, query_text)
+    if results:
+        pending["imdb_search_results"] = results
+        pending["imdb_search_query"] = query_text
+        pending["imdb_search_page"] = 1
+        pending["stage"] = "awaiting_imdb_selection"
+        pending["is_fully_manual"] = False
+        context.chat_data[PENDING_KEY] = pending
+        _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
+
+        prompt_text = build_imdb_results_text(query_text, results, page=1)
+        reply_markup = build_imdb_results_markup(results, page=1)
+        await context.application.bot.send_message(
+            chat_id=query.message.chat_id if query.message else query.from_user.id,
+            text=prompt_text,
+            reply_markup=reply_markup,
+            disable_web_page_preview=True,
+        )
+
+        await query.answer()
+        return
+
+    pending["stage"] = "awaiting_manual_title"
     pending["is_fully_manual"] = False
     context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
 
-    prompt_text = "Send another title to search TMDB."
-    if query.message and query.message.caption is not None:
-        await query.edit_message_caption(caption=prompt_text)
-    else:
-        await query.edit_message_text(text=prompt_text)
+    prompt_text = f"No IMDb results found for '{query_text}'. Please send another title."
+    await context.application.bot.send_message(
+        chat_id=query.message.chat_id if query.message else query.from_user.id,
+        text=prompt_text,
+    )
+
+    await query.answer()
 
 
 async def handle_manual(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -795,7 +1011,7 @@ async def handle_toggle_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
     context.chat_data[PENDING_KEY] = pending
 
     preview_text = build_preview_text(pending)
-    reply_markup = build_review_prompt(include_continue=True, current_type=new_type)
+    reply_markup = build_review_prompt(record=pending, include_continue=True, current_type=new_type)
 
     if query.message and query.message.caption is not None:
         await query.edit_message_caption(
@@ -808,6 +1024,190 @@ async def handle_toggle_type(update: Update, context: ContextTypes.DEFAULT_TYPE)
             text=preview_text,
             parse_mode="Markdown",
             reply_markup=reply_markup,
+        )
+
+
+async def handle_imdb_results_page(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    results = pending.get("imdb_search_results") or []
+    if not results:
+        await query.answer("No search results available.", show_alert=True)
+        return
+
+    callback_data = query.data or ""
+    _, _, page_text = callback_data.partition(":")
+    try:
+        page = int(page_text)
+    except ValueError:
+        await query.answer("Invalid page.", show_alert=True)
+        return
+
+    pending["imdb_search_page"] = page
+    pending["stage"] = "awaiting_imdb_selection"
+    context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
+
+    query_text = pending.get("imdb_search_query") or pending.get("movie") or "title"
+    prompt_text = build_imdb_results_text(query_text, results, page=page)
+    reply_markup = build_imdb_results_markup(results, page=page)
+
+    if query.message and query.message.caption is not None:
+        await query.edit_message_caption(caption=prompt_text, reply_markup=reply_markup)
+    elif query.message:
+        await query.edit_message_text(text=prompt_text, reply_markup=reply_markup)
+
+    await query.answer()
+
+
+async def handle_imdb_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    results = pending.get("imdb_search_results") or []
+    callback_data = query.data or ""
+    _, _, index_text = callback_data.partition(":")
+    try:
+        index = int(index_text)
+    except ValueError:
+        await query.answer("Invalid selection.", show_alert=True)
+        return
+
+    if index < 0 or index >= len(results):
+        await query.answer("Selection out of range.", show_alert=True)
+        return
+
+    selected = results[index]
+    selected_title = selected.get("title") or pending.get("movie") or "Untitled"
+    pending["movie"] = selected_title
+    pending["source_query"] = pending.get("imdb_search_query") or pending.get("source_query") or selected_title
+    if selected.get("description"):
+        pending["description"] = selected.get("description")
+    if selected.get("poster_url"):
+        pending["poster_url"] = selected.get("poster_url")
+    if selected.get("year"):
+        pending["year"] = selected.get("year")
+
+    pending["tmdb_id"] = selected.get("tmdb_id")
+    pending["tmdb_media_type"] = selected.get("media_type") or "movie"
+    pending["type"] = normalize_media_type(pending["tmdb_media_type"])
+    pending["stage"] = "review"
+    pending["imdb_selected_index"] = index
+    pending["imdb_selected_title"] = selected_title
+    context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
+    await query.answer(f"Selected {selected_title}")
+
+    if query.message:
+        try:
+            await query.edit_message_text(text=f"Selected: {selected_title}\nLoading preview...")
+        except Exception:
+            pass
+
+    if not pending.get("poster_url"):
+        fallback = await asyncio.to_thread(resolve_poster_for_title, selected_title)
+        if fallback:
+            if fallback.get("poster_url"):
+                pending["poster_url"] = fallback.get("poster_url")
+            if fallback.get("description") and not pending.get("description"):
+                pending["description"] = fallback.get("description")
+            if fallback.get("year") and not pending.get("year"):
+                pending["year"] = fallback.get("year")
+            context.chat_data[PENDING_KEY] = pending
+
+    if query.message:
+        await send_preview_message(query.message, pending)
+    else:
+        await context.application.bot.send_message(
+            chat_id=query.from_user.id,
+            text=build_preview_text(pending),
+        )
+
+
+async def handle_edit_field(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
+    callback_data = query.data or ""
+    _, _, field_name = callback_data.partition(":")
+    allowed_fields = {"movie", "type", "year", "description", "audio", "poster_url", "480p", "720p", "1080p", "2k", "links"}
+    if field_name not in allowed_fields:
+        await query.answer("Unknown field.", show_alert=True)
+        return
+
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    if not pending:
+        await query.answer("Nothing pending.", show_alert=True)
+        return
+
+    await query.answer()
+
+    chat_id = query.message.chat_id if query.message else query.from_user.id
+    pending["stage"] = f"awaiting_edit_{field_name}"
+    pending["edit_field"] = field_name
+    context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(context.application, chat_id)
+
+    prompt_text, reply_markup = _edit_field_prompt(field_name, pending)
+    if query.message and query.message.caption is not None:
+        await query.edit_message_caption(caption=prompt_text, reply_markup=reply_markup)
+    elif query.message:
+        await query.edit_message_text(text=prompt_text, reply_markup=reply_markup)
+    else:
+        await context.application.bot.send_message(chat_id=chat_id, text=prompt_text, reply_markup=reply_markup)
+
+
+async def handle_edit_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    if not pending:
+        await query.answer("Nothing pending.", show_alert=True)
+        return
+
+    await query.answer()
+
+    pending["stage"] = "review"
+    pending.pop("edit_field", None)
+    context.chat_data[PENDING_KEY] = pending
+
+    if query.message and query.message.caption is not None:
+        await query.edit_message_caption(
+            caption=build_preview_text(pending),
+            reply_markup=build_review_prompt(record=pending, current_type=pending.get("tmdb_media_type", "movie")),
+        )
+    elif query.message:
+        await query.edit_message_text(
+            text=build_preview_text(pending),
+            reply_markup=build_review_prompt(record=pending, current_type=pending.get("tmdb_media_type", "movie")),
         )
 
 

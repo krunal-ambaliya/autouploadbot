@@ -390,5 +390,235 @@
         ],
         "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'A mysterious traveler slips into the heart of Karachi''s underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.', 'https://image.tmdb.org/t/p/w500/8FHOtUpNIk5ZPEay2N2EY5lrxkv.jpg', ARRAY['https://image.tmdb.org/t/p/w500/8FHOtUpNIk5ZPEay2N2EY5lrxkv.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
         "neon_inserted": true
+    },
+    {
+        "movie": "Dhurandhar",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "A mysterious traveler slips into the heart of Karachi's underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg",
+        "year": "2025",
+        "tmdb_id": 1291608,
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://t.me/+V_erPmsTHnUxMzll",
+            "720p": "https://t.me/+V_erPmsTHnUxMzll"
+        },
+        "source_query": "DHURANDHAR",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'A mysterious traveler slips into the heart of Karachi''s underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.', 'https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg', ARRAY['https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Dhurandhar",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "A mysterious traveler slips into the heart of Karachi's underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg",
+        "year": "2025",
+        "tmdb_id": 1291608,
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://t.me/+V_erPmsTHnUxMzll",
+            "720p": "https://t.me/+V_erPmsTHnUxMzll"
+        },
+        "source_query": "DHURANDHAR",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'A mysterious traveler slips into the heart of Karachi''s underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.', 'https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg', ARRAY['https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Dhurandhar",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "A mysterious traveler slips into the heart of Karachi's underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg",
+        "year": "2025",
+        "tmdb_id": 1291608,
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://t.me/+V_erPmsTHnUxMzll",
+            "720p": "https://t.me/+V_erPmsTHnUxMzll"
+        },
+        "source_query": "DHURANDHAR",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'A mysterious traveler slips into the heart of Karachi''s underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.', 'https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg', ARRAY['https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Dhurandhar",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "A mysterious traveler slips into the heart of Karachi's underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg",
+        "year": "2025",
+        "tmdb_id": 1291608,
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://t.me/+V_erPmsTHnUxMzll",
+            "720p": "https://t.me/+V_erPmsTHnUxMzll"
+        },
+        "source_query": "DHURANDHAR",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'A mysterious traveler slips into the heart of Karachi''s underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.', 'https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg', ARRAY['https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Dhurandhar",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "A mysterious traveler slips into the heart of Karachi's underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg",
+        "year": "2025",
+        "tmdb_id": 1291608,
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://t.me/+V_erPmsTHnUxMzll",
+            "720p": "https://t.me/+V_erPmsTHnUxMzll"
+        },
+        "source_query": "DHURANDHAR",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar', 'movie', ARRAY['Action'], 2025, 'Hindi', '720p', 'A mysterious traveler slips into the heart of Karachi''s underbelly and rises through its ranks with lethal precision, only to tear the notorious ISI-Underworld nexus apart from within.', 'https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg', ARRAY['https://image.tmdb.org/t/p/w500/aWpNev9nNZcqheAkNVTivo8sF1T.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "movie": "Dhurandhar: The Revenge",
+        "audio": "Hindi 🔥",
+        "quality": "720p, 480p",
+        "description": "test 01",
+        "poster_url": "https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg",
+        "year": "2026",
+        "tmdb_id": "tt39139925",
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://t.me/+V_erPmsTHnUxMzll",
+            "720p": "https://t.me/+V_erPmsTHnUxMzll",
+            "1080p": "https://t.me/infinitewebmovies"
+        },
+        "source_query": "Dhurandhar",
+        "stage": "review",
+        "imdb_search_results": [
+            {
+                "tmdb_id": "tt33014583",
+                "title": "Dhurandhar",
+                "year": "2025",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BMzFiNTVkZjYtM2I3Yi00MGNjLWEyYTAtMGViNGExZmMzMGMzXkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt33014583/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt39139925",
+                "title": "Dhurandhar: The Revenge",
+                "year": "2026",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt39139925/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt38821120",
+                "title": "Dhurandhar No1",
+                "year": "2026",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BMGFlNjI4NjMtYzQ0MS00OWE0LWEyYTUtNjhlZDgyZWFmOWQ5XkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt38821120/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt17424358",
+                "title": "Dhurandhar",
+                "year": null,
+                "poster_url": null,
+                "description": "",
+                "media_type": "tv",
+                "source_url": "https://www.imdb.com/title/tt17424358/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt5241904",
+                "title": "Dhurandhar: The Shooter",
+                "year": "2013",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BN2I5MDU4YzgtNzQwYy00NzI5LTk5ZjItZDNjMDc0Zjk2N2UxXkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt5241904/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt4695284",
+                "title": "Dhurandhar Bhatawdekar",
+                "year": "2015",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BMjFmYzFiZjktZmZjZS00NzIxLWI5M2UtY2ZkMjAyODJlY2UwXkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt4695284/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt12284466",
+                "title": "Dhuandhaar",
+                "year": "2021",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BMWMzMjdmNjEtMTdkYS00YzJhLTg5Y2MtNWNjYjk5MjdkODFmXkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt12284466/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt0379259",
+                "title": "Dhuwandhar",
+                "year": "1935",
+                "poster_url": null,
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.imdb.com/title/tt0379259/",
+                "source_provider": "imdbapi.dev"
+            },
+            {
+                "tmdb_id": "tt4718554",
+                "title": "The Making of Aurat aur Char Dewari Aka Women and Hurdles",
+                "year": "2007",
+                "poster_url": "https://m.media-amazon.com/images/M/MV5BNWI3MWYzODUtNjBjNy00YjAxLThjMmQtMmUwZTk2YzcyOWYwXkEyXkFqcGc@._V1_.jpg",
+                "description": "",
+                "media_type": "tv",
+                "source_url": "https://www.imdb.com/title/tt4718554/",
+                "source_provider": "imdbapi.dev"
+            }
+        ],
+        "imdb_search_query": "Dhurandhar",
+        "imdb_search_page": 1,
+        "is_fully_manual": false,
+        "imdb_selected_index": 1,
+        "imdb_selected_title": "Dhurandhar: The Revenge",
+        "sample_images": [
+            "https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar: The Revenge', 'movie', ARRAY['Action'], 2026, 'Hindi', '1080p', 'test 01', 'https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg', ARRAY['https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/infinitewebmovies', NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
     }
 ]
