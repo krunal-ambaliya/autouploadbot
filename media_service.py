@@ -3,10 +3,13 @@ import hashlib
 import os
 import re
 import time
+import logging
 from urllib.parse import quote_plus, urljoin
 
 import requests
 
+
+logger = logging.getLogger(__name__)
 
 IMDB_FIND_URL = "https://www.imdb.com/find/"
 IMDB_BASE_URL = "https://www.imdb.com"
@@ -121,17 +124,30 @@ def _extract_imdb_result(item):
     if not source_url and imdb_id:
         source_url = f"{IMDB_BASE_URL}/title/{imdb_id}/"
 
+    rating = (item.get("rating") or {}).get("aggregateRating")
+    vote_count = (item.get("rating") or {}).get("voteCount")
+    end_year = item.get("endYear")
+    if isinstance(end_year, dict):
+        end_year = end_year.get("year") or end_year.get("value")
+    if end_year is not None:
+        end_year = str(end_year)
+
     return {
         "tmdb_id": imdb_id,
+        "imdb_id": imdb_id,
         "title": title,
         "year": year,
+        "end_year": end_year,
         "poster_url": poster_url,
         "description": description,
+        "rating": rating,
+        "vote_count": vote_count,
+        "original_title": _safe_text(item.get("originalTitle")),
         "media_type": _normalize_imdb_media_type(
             item.get("type") or item.get("titleType") or item.get("kind")
         ),
         "source_url": source_url,
-        "source_provider": "imdbapi.dev",
+        "source_provider": "IMDb",
     }
 
 
@@ -139,18 +155,22 @@ def search_imdb_titles(query, limit=15):
     if not query:
         return []
 
-    response = requests.get(
-        IMDB_SEARCH_API_URL,
-        params={"query": query},
-        headers=_request_headers(),
-        timeout=20,
-    )
-    response.raise_for_status()
+    try:
+        response = requests.get(
+            IMDB_SEARCH_API_URL,
+            params={"query": query},
+            headers=_request_headers(),
+            timeout=20,
+        )
+        response.raise_for_status()
 
-    payload = response.json() or {}
-    items = payload.get("titles") or payload.get("results") or payload.get("data") or []
-    if isinstance(items, dict):
-        items = items.get("titles") or items.get("results") or items.get("data") or []
+        payload = response.json() or {}
+        items = payload.get("titles") or payload.get("results") or payload.get("data") or []
+        if isinstance(items, dict):
+            items = items.get("titles") or items.get("results") or items.get("data") or []
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning("IMDb search failed for %r: %s", query, exc)
+        return []
 
     results = []
     for item in items[:limit]:
@@ -165,44 +185,48 @@ def scrape_poster_from_imdb(query):
     if not query:
         return None
 
-    search_url = f"{IMDB_FIND_URL}?q={quote_plus(query)}&s=tt&ttype=ft"
-    response = requests.get(search_url, headers=_request_headers(), timeout=20)
-    response.raise_for_status()
+    try:
+        search_url = f"{IMDB_FIND_URL}?q={quote_plus(query)}&s=tt&ttype=ft"
+        response = requests.get(search_url, headers=_request_headers(), timeout=20)
+        response.raise_for_status()
 
-    match = re.search(r'href="(/title/tt\d+[^\"]*)"', response.text, re.IGNORECASE)
-    if not match:
-        return None
+        match = re.search(r'href="(/title/tt\d+[^\"]*)"', response.text, re.IGNORECASE)
+        if not match:
+            return None
 
-    title_url = urljoin(IMDB_BASE_URL, html.unescape(match.group(1)))
-    title_response = requests.get(title_url, headers=_request_headers(), timeout=20)
-    title_response.raise_for_status()
+        title_url = urljoin(IMDB_BASE_URL, html.unescape(match.group(1)))
+        title_response = requests.get(title_url, headers=_request_headers(), timeout=20)
+        title_response.raise_for_status()
 
-    poster_match = re.search(
-        r'<meta[^>]+property="og:image"[^>]+content="([^"]+)"',
-        title_response.text,
-        re.IGNORECASE,
-    )
-    if not poster_match:
         poster_match = re.search(
-            r'<meta[^>]+name="twitter:image"[^>]+content="([^"]+)"',
+            r'<meta[^>]+property="og:image"[^>]+content="([^"]+)"',
             title_response.text,
             re.IGNORECASE,
         )
+        if not poster_match:
+            poster_match = re.search(
+                r'<meta[^>]+name="twitter:image"[^>]+content="([^"]+)"',
+                title_response.text,
+                re.IGNORECASE,
+            )
 
-    if not poster_match:
+        if not poster_match:
+            return None
+
+        title_match = re.search(
+            r'<meta[^>]+property="og:title"[^>]+content="([^"]+)"',
+            title_response.text,
+            re.IGNORECASE,
+        )
+        description_match = re.search(
+            r'<meta[^>]+property="og:description"[^>]+content="([^"]+)"',
+            title_response.text,
+            re.IGNORECASE,
+        )
+        year_match = re.search(r'\((\d{4})\)', title_match.group(1) if title_match else "")
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning("IMDb poster scrape failed for %r: %s", query, exc)
         return None
-
-    title_match = re.search(
-        r'<meta[^>]+property="og:title"[^>]+content="([^"]+)"',
-        title_response.text,
-        re.IGNORECASE,
-    )
-    description_match = re.search(
-        r'<meta[^>]+property="og:description"[^>]+content="([^"]+)"',
-        title_response.text,
-        re.IGNORECASE,
-    )
-    year_match = re.search(r'\((\d{4})\)', title_match.group(1) if title_match else "")
 
     return {
         "poster_url": html.unescape(poster_match.group(1)),

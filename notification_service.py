@@ -1,7 +1,9 @@
 import asyncio
 import html
 import logging
+import os
 from telegram import Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import TelegramError
 from config import BOT_TOKEN, TELEGRAM_CHANNEL_ID
 
@@ -52,6 +54,42 @@ def _get_notification_image(record):
     return None
 
 
+def _build_movie_url(record):
+    movie_id = record.get("neon_inserted")
+    if movie_id in (None, "", False):
+        return None
+
+    template = (
+        os.getenv("MOVIE_PAGE_URL_TEMPLATE")
+        or os.getenv("MOVIE_PAGE_URL")
+        or os.getenv("MOVIE_PAGE_BASE_URL")
+    )
+    if not template:
+        return None
+
+    template = template.strip()
+    if not template:
+        return None
+
+    if "{id}" in template or "{movie_id}" in template:
+        return template.format(id=movie_id, movie_id=movie_id)
+
+    if template.endswith("/"):
+        return f"{template}{movie_id}"
+
+    return f"{template}/{movie_id}"
+
+
+def _build_notification_markup(record):
+    movie_url = _build_movie_url(record)
+    if not movie_url:
+        return None
+
+    return InlineKeyboardMarkup(
+        [[InlineKeyboardButton("👉 Click here to watch", url=movie_url)]]
+    )
+
+
 async def send_channel_notification(record):
     """Send notification to Telegram channel."""
     if not TELEGRAM_CHANNEL_ID or not BOT_TOKEN:
@@ -62,6 +100,7 @@ async def send_channel_notification(record):
         bot = Bot(token=BOT_TOKEN)
         message_text = format_channel_message(record)
         image_url = _get_notification_image(record)
+        reply_markup = _build_notification_markup(record)
 
         if image_url:
             if len(message_text) <= 1024:
@@ -70,6 +109,7 @@ async def send_channel_notification(record):
                     photo=image_url,
                     caption=message_text,
                     parse_mode="HTML",
+                    reply_markup=reply_markup,
                 )
                 logger.info(f"Channel notification sent for: {record.get('movie')}")
                 return
@@ -84,6 +124,7 @@ async def send_channel_notification(record):
                 photo=image_url,
                 caption=short_caption,
                 parse_mode="HTML",
+                reply_markup=reply_markup,
             )
 
             await bot.send_message(
@@ -99,7 +140,8 @@ async def send_channel_notification(record):
             chat_id=TELEGRAM_CHANNEL_ID,
             text=message_text,
             parse_mode="HTML",
-            disable_web_page_preview=True
+            disable_web_page_preview=True,
+            reply_markup=reply_markup,
         )
         
         logger.info(f"Channel notification sent for: {record.get('movie')}")

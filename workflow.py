@@ -1,6 +1,6 @@
 import asyncio
 from sql_utils import build_movie_insert_sql
-from storage import execute_neon_insert, save_to_json
+from storage import execute_neon_insert_returning_id, save_to_json
 from media_service import resolve_poster_for_title
 from notification_service import send_channel_notification
 
@@ -37,7 +37,7 @@ async def finalize_pending_post(pending, description):
     insert_sql = build_movie_insert_sql(record)
     record["insert_query"] = insert_sql
 
-    record["neon_inserted"] = await asyncio.to_thread(execute_neon_insert, insert_sql)
+    record["neon_inserted"] = await asyncio.to_thread(execute_neon_insert_returning_id, insert_sql)
 
     save_to_json(record)
     

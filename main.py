@@ -5,7 +5,7 @@ import threading
 import sys
 from flask import Flask, request
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CallbackQueryHandler, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 from config import BOT_TOKEN, load_env_file
 from handlers import (
     handle_cancel,
@@ -18,6 +18,7 @@ from handlers import (
     handle_manual_send_again,
     handle_message,
     handle_search_again,
+    handle_tmdb_search_results,
     handle_toggle_type,
 )
 from storage import get_admins, init_db
@@ -110,6 +111,16 @@ def _register_handlers():
     application.add_handler(CallbackQueryHandler(handle_edit_cancel, pattern="^edit_cancel$"))
     application.add_handler(CallbackQueryHandler(handle_imdb_select, pattern=r"^imdb_select:\d+$"))
     application.add_handler(CallbackQueryHandler(handle_imdb_results_page, pattern=r"^imdb_results_page:\d+$"))
+    application.add_handler(CallbackQueryHandler(handle_tmdb_search_results, pattern="^tmdb_search_results$"))
+    application.add_error_handler(_handle_telegram_error)
+
+
+async def _handle_telegram_error(update: object, context: ContextTypes.DEFAULT_TYPE):
+    error = context.error
+    logger.error(
+        "Unhandled Telegram exception",
+        exc_info=(type(error), error, error.__traceback__) if error else True,
+    )
 
 
 @app.route("/", methods=["GET"])

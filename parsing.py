@@ -194,7 +194,7 @@ def _imdb_result_label(item):
     return _short_title(f"{prefix} {title} ({year})")
 
 
-def build_imdb_results_text(query, results, page=1, page_size=5):
+def build_imdb_results_text(query, results, page=1, page_size=5, source_name="IMDb"):
     total = len(results or [])
     page_count = max(1, math.ceil(total / page_size))
     page = max(1, min(page, page_count))
@@ -204,7 +204,7 @@ def build_imdb_results_text(query, results, page=1, page_size=5):
 
     lines = [
         f"Search results for '{query}'",
-        f"Top {total} result(s) found",
+        f"Top {total} result(s) found from {source_name}",
     ]
 
     if page_count > 1:
@@ -216,7 +216,9 @@ def build_imdb_results_text(query, results, page=1, page_size=5):
             title = item.get("title") or "Untitled"
             year = item.get("year") or "?"
             media_type = "TV" if (item.get("media_type") or "movie") == "tv" else "Movie"
-            lines.append(f"{offset}. {title} ({year}) [{media_type}]")
+            rating = item.get("rating")
+            rating_text = f" | Rating: {rating}" if rating is not None else ""
+            lines.append(f"{offset}. {title} ({year}) [{media_type}]{rating_text}")
 
     return "\n".join(lines)
 
@@ -255,6 +257,7 @@ def build_imdb_results_markup(results, page=1, page_size=5):
     keyboard.append(
         [
             InlineKeyboardButton("Search again", callback_data="tmdb_search_again"),
+            InlineKeyboardButton("TMDb Search", callback_data="tmdb_search_results"),
             InlineKeyboardButton("Cancel", callback_data="cancel_pending"),
         ]
     )

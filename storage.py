@@ -148,6 +148,35 @@ def execute_neon_query(sql_query):
             pass
 
 
+def execute_neon_insert_returning_id(sql_query):
+    """Executes an INSERT ... RETURNING id query and returns the inserted id."""
+    conn = _get_connection()
+    if not conn:
+        logger.error("Failed to get database connection")
+        return None
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql_query)
+            row = cur.fetchone()
+
+        conn.commit()
+        return row[0] if row else None
+    except Exception as e:
+        try:
+            conn.rollback()
+        except:
+            pass
+        logger.error(f"âŒ DATABASE ERROR: {str(e)}")
+        logger.error(f"Query that failed:\n{sql_query}")
+        return None
+    finally:
+        try:
+            conn.close()
+        except:
+            pass
+
+
 def execute_neon_fetch(sql_query):
     """Executes a SELECT query and returns rows."""
     conn = _get_connection()

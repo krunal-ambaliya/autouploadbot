@@ -620,5 +620,375 @@
         ],
         "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Dhurandhar: The Revenge', 'movie', ARRAY['Action'], 2026, 'Hindi', '1080p', 'test 01', 'https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg', ARRAY['https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_.jpg'], 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/+V_erPmsTHnUxMzll', 'https://t.me/infinitewebmovies', NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
         "neon_inserted": true
+    },
+    {
+        "chat_id": 1800599162,
+        "downloads": {
+            "480p": "https://link1.com",
+            "720p": "https://link2.com",
+            "1080p": "https://link3.com"
+        },
+        "is_fully_manual": false,
+        "stage": "review",
+        "movie": "Wednesday",
+        "source_query": "Wednesday",
+        "imdb_search_results": [
+            {
+                "tmdb_id": 119051,
+                "title": "Wednesday",
+                "year": "2022",
+                "poster_url": "https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg",
+                "description": "Smart, sarcastic and a little dead inside, Wednesday Addams investigates twisted mysteries while making new friends — and foes — at Nevermore Academy.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/119051",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 108112,
+                "title": "Wednesday Downtown",
+                "year": "2014",
+                "poster_url": "https://image.tmdb.org/t/p/w500/4SIcKW4NFyDhscxLU2dsndaUnUw.jpg",
+                "description": "Everybody has theories that they personally cling blindly to regardless of proof or scientific validity. In this entertaining information program, a host of celebrities present their cases for pet theories to studio guests by any means be it academic argument or laughably “out there” logic. Can their theories gain acceptance? Or will they be discarded as pop science that only adds confusion to the world? Find out through exhaustive examination including on-location experiments!",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/108112",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 11303,
+                "title": "The Wednesday Play",
+                "year": "1964",
+                "poster_url": "https://image.tmdb.org/t/p/w500/pJ3G30k2IjxHnipXobZJZKQZErR.jpg",
+                "description": "An anthology series of television plays which aired on BBC1 from October 1964 to May 1970. The plays were usually written for television, although adaptations from other sources also featured.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/11303",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 13,
+                "title": "How do you like Wednesday?",
+                "year": "1996",
+                "poster_url": "https://image.tmdb.org/t/p/w500/i2MwS6U0XzD8ad6aS3HiTNKz8ov.jpg",
+                "description": "How do you like Wednesday? was a Japanese television variety series that aired on the HTB network in Hokkaidō, Japan, and on other regional television networks in Japan. The program debuted on HTB on October 9, 1996. The series was one of the first local variety programs to be produced on Hokkaido; prior to this series' launch, local variety programs in Hokkaidō were virtually non-existent. The program also had a significant influence on other local programs in other regions in Japan, most notably Kwangaku! in Kansai and Nobunaga in Tokai.\n\nThe series achieved a record 18.6% viewing share on December 8, 1999, the highest share for a late-night program on a local TV station.\n\nProduction of the weekly regular series ended in September 2002, though new limited-run series were produced on average of every 18 months; the latest series was shown on HTB in late 2005, eight episodes in length.\n\nMost of the series have been rerun under the names of Dōdeshō Returns and Suiyō Dōdeshō Classic.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/13",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 217834,
+                "title": "Wednesday Club",
+                "year": "2023",
+                "poster_url": "https://image.tmdb.org/t/p/w500/yzyRJfiWYlfEbGHroWiKp4NAUoK.jpg",
+                "description": "\"Wednesday Club\" is a club of middle children who feel they haven't been accepted, that no one pays them any attention. There are seven members, Kong, Phali, Tam, May, Kun, Mac and Pheem, and one ironclad rule: members may not form romantic relationships with each other in order to maintain amity.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/217834",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 117598,
+                "title": "Wednesday Afternoon",
+                "year": "2004",
+                "poster_url": "https://image.tmdb.org/t/p/w500/erDn2VEx3FIoiG9IJmp5sNo7uuQ.jpg",
+                "description": "There is no right or wrong in the world that Miguel, an East L.A. teenager, and his father live in, only choices. One's an American, the other an immigrant, and though they are son and father, they are separated by a culture that threatens to tear them apart.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/117598",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 19703,
+                "title": "A Wednesday!",
+                "year": "2008",
+                "poster_url": "https://image.tmdb.org/t/p/w500/gVUSxtJM3arL5VIUIRNYde20EF0.jpg",
+                "description": "Prakash Rathod, a retired police commissioner recounts the most memorable case of his career wherein he was informed about a bomb scare in Mumbai by an ordinary commoner.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/19703",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 18387,
+                "title": "Big Wednesday",
+                "year": "1978",
+                "poster_url": "https://image.tmdb.org/t/p/w500/zMOZoNszmmlf3jUivDUEFgCrReo.jpg",
+                "description": "Three 1960s California surfers fool around, drift apart and reunite years later to ride epic waves.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/18387",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 706865,
+                "title": "Wednesday",
+                "year": "1974",
+                "poster_url": "https://image.tmdb.org/t/p/w500/y7hcT5wAqTyp3oOEPDHdVcpvEwZ.jpg",
+                "description": "Jack Lemmon stars as a talk radio DJ who runs into some serious trouble live on the air.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/706865",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 556591,
+                "title": "Wednesday Love",
+                "year": "1975",
+                "poster_url": "https://image.tmdb.org/t/p/w500/hzhEkeTvtKVrep574RNPHR3rC19.jpg",
+                "description": "Two women, looking for amusement on their afternoons off, visit a drinking club.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/556591",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 716602,
+                "title": "Wednesday",
+                "year": "2020",
+                "poster_url": "https://image.tmdb.org/t/p/w500/zLLiKIQmjgKzrOAaLhDa3MNoqJd.jpg",
+                "description": "A global lockdown might feel like the perfect time to write a piece of reflective drama, but for one bickering couple the creative process leads to nothing but disagreement.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/716602",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 613439,
+                "title": "Wednesday",
+                "year": "2006",
+                "poster_url": "https://image.tmdb.org/t/p/w500/aCOC1vLnRCtNqecfJ2qFBlMYDfr.jpg",
+                "description": "Wednesday is a story of life, love, loss, and redemption. It is divided into four separate segments: Luke & Lucy, Purgatory, Lyrics of a Lowly Life, and Narcissus Flower. Each segment details how different people deal with love and loss. These basic human emotions exist across the world, it's how we individually deal with them that separates and connects us all.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/613439",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 688225,
+                "title": "Wednesday",
+                "year": "2019",
+                "poster_url": "https://image.tmdb.org/t/p/w500/jzWjxTRddN8YkU7zPnfMJwma9IR.jpg",
+                "description": "Recently homeless and living in a car with her mother, a teenage girl commits a reckless act, desperate to rescue a vestige of their former life. Starring Mychala Lee and Chene Lawson. Directed by Daniel Willis; written by Jessica D. Shields.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/688225",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 117207,
+                "title": "Ash Wednesday",
+                "year": "1973",
+                "poster_url": "https://image.tmdb.org/t/p/w500/l7jtFC9QYmgdZSrmJfx1aHmMYjT.jpg",
+                "description": "Barbara gets secret plastic surgery in Switzerland in an attempt to save her marriage to Mark, but he doesn't seem interested in meeting her. She checks in to a ski resort to wait for Mark, and begins getting attention from young men. Her daughter tries to warn her that even though she has had the surgery it might be too late for her marriage, but she clings to the hope that Mark will come back once he sees her new look. Meanwhile, she must decide whether or not have an affair with a young man she's met.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/117207",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 26225,
+                "title": "Ash Wednesday",
+                "year": "2002",
+                "poster_url": "https://image.tmdb.org/t/p/w500/sKyxf1nGw0iCIjXzlq6lIsVqq0g.jpg",
+                "description": "In early 1980s Manhattan, a pair of Irish-American brothers become embroiled in a conflict with the Irish Mob.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/26225",
+                "source_provider": "TMDb"
+            }
+        ],
+        "imdb_search_query": "Wednesday",
+        "imdb_search_page": 1,
+        "imdb_search_source": "TMDb",
+        "poster_url": "https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg",
+        "year": "2022",
+        "tmdb_id": 119051,
+        "imdb_id": 119051,
+        "tmdb_media_type": "tv",
+        "type": "series",
+        "imdb_rating": 8,
+        "imdb_vote_count": 499065,
+        "imdb_original_title": "Wednesday",
+        "source_url": "https://www.themoviedb.org/tv/119051",
+        "source_provider": "TMDb",
+        "imdb_selected_index": 0,
+        "imdb_selected_title": "Wednesday",
+        "description": "Smart, sarcastic and a little dead inside, Wednesday Addams investigates twisted mysteries while making new friends — and foes — at Nevermore Academy.",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Wednesday', 'series', ARRAY['Action'], 2022, 'Unknown', '1080p', 'Smart, sarcastic and a little dead inside, Wednesday Addams investigates twisted mysteries while making new friends — and foes — at Nevermore Academy.', 'https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg', ARRAY['https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg'], 'https://link1.com', 'https://link2.com', 'https://link3.com', NULL, 'published', ARRAY['auto', 'generated'], 0\n);",
+        "neon_inserted": true
+    },
+    {
+        "chat_id": 1800599162,
+        "downloads": {
+            "480p": "https://dramaflix.top/movie/101"
+        },
+        "is_fully_manual": false,
+        "stage": "review",
+        "movie": "Wednesday",
+        "source_query": "Wednesday",
+        "imdb_search_results": [
+            {
+                "tmdb_id": 119051,
+                "title": "Wednesday",
+                "year": "2022",
+                "poster_url": "https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg",
+                "description": "Smart, sarcastic and a little dead inside, Wednesday Addams investigates twisted mysteries while making new friends — and foes — at Nevermore Academy.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/119051",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 108112,
+                "title": "Wednesday Downtown",
+                "year": "2014",
+                "poster_url": "https://image.tmdb.org/t/p/w500/4SIcKW4NFyDhscxLU2dsndaUnUw.jpg",
+                "description": "Everybody has theories that they personally cling blindly to regardless of proof or scientific validity. In this entertaining information program, a host of celebrities present their cases for pet theories to studio guests by any means be it academic argument or laughably “out there” logic. Can their theories gain acceptance? Or will they be discarded as pop science that only adds confusion to the world? Find out through exhaustive examination including on-location experiments!",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/108112",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 11303,
+                "title": "The Wednesday Play",
+                "year": "1964",
+                "poster_url": "https://image.tmdb.org/t/p/w500/pJ3G30k2IjxHnipXobZJZKQZErR.jpg",
+                "description": "An anthology series of television plays which aired on BBC1 from October 1964 to May 1970. The plays were usually written for television, although adaptations from other sources also featured.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/11303",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 13,
+                "title": "How do you like Wednesday?",
+                "year": "1996",
+                "poster_url": "https://image.tmdb.org/t/p/w500/i2MwS6U0XzD8ad6aS3HiTNKz8ov.jpg",
+                "description": "How do you like Wednesday? was a Japanese television variety series that aired on the HTB network in Hokkaidō, Japan, and on other regional television networks in Japan. The program debuted on HTB on October 9, 1996. The series was one of the first local variety programs to be produced on Hokkaido; prior to this series' launch, local variety programs in Hokkaidō were virtually non-existent. The program also had a significant influence on other local programs in other regions in Japan, most notably Kwangaku! in Kansai and Nobunaga in Tokai.\n\nThe series achieved a record 18.6% viewing share on December 8, 1999, the highest share for a late-night program on a local TV station.\n\nProduction of the weekly regular series ended in September 2002, though new limited-run series were produced on average of every 18 months; the latest series was shown on HTB in late 2005, eight episodes in length.\n\nMost of the series have been rerun under the names of Dōdeshō Returns and Suiyō Dōdeshō Classic.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/13",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 217834,
+                "title": "Wednesday Club",
+                "year": "2023",
+                "poster_url": "https://image.tmdb.org/t/p/w500/yzyRJfiWYlfEbGHroWiKp4NAUoK.jpg",
+                "description": "\"Wednesday Club\" is a club of middle children who feel they haven't been accepted, that no one pays them any attention. There are seven members, Kong, Phali, Tam, May, Kun, Mac and Pheem, and one ironclad rule: members may not form romantic relationships with each other in order to maintain amity.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/217834",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 117598,
+                "title": "Wednesday Afternoon",
+                "year": "2004",
+                "poster_url": "https://image.tmdb.org/t/p/w500/erDn2VEx3FIoiG9IJmp5sNo7uuQ.jpg",
+                "description": "There is no right or wrong in the world that Miguel, an East L.A. teenager, and his father live in, only choices. One's an American, the other an immigrant, and though they are son and father, they are separated by a culture that threatens to tear them apart.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/117598",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 19703,
+                "title": "A Wednesday!",
+                "year": "2008",
+                "poster_url": "https://image.tmdb.org/t/p/w500/gVUSxtJM3arL5VIUIRNYde20EF0.jpg",
+                "description": "Prakash Rathod, a retired police commissioner recounts the most memorable case of his career wherein he was informed about a bomb scare in Mumbai by an ordinary commoner.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/19703",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 18387,
+                "title": "Big Wednesday",
+                "year": "1978",
+                "poster_url": "https://image.tmdb.org/t/p/w500/zMOZoNszmmlf3jUivDUEFgCrReo.jpg",
+                "description": "Three 1960s California surfers fool around, drift apart and reunite years later to ride epic waves.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/18387",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 706865,
+                "title": "Wednesday",
+                "year": "1974",
+                "poster_url": "https://image.tmdb.org/t/p/w500/y7hcT5wAqTyp3oOEPDHdVcpvEwZ.jpg",
+                "description": "Jack Lemmon stars as a talk radio DJ who runs into some serious trouble live on the air.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/706865",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 556591,
+                "title": "Wednesday Love",
+                "year": "1975",
+                "poster_url": "https://image.tmdb.org/t/p/w500/hzhEkeTvtKVrep574RNPHR3rC19.jpg",
+                "description": "Two women, looking for amusement on their afternoons off, visit a drinking club.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/556591",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 716602,
+                "title": "Wednesday",
+                "year": "2020",
+                "poster_url": "https://image.tmdb.org/t/p/w500/zLLiKIQmjgKzrOAaLhDa3MNoqJd.jpg",
+                "description": "A global lockdown might feel like the perfect time to write a piece of reflective drama, but for one bickering couple the creative process leads to nothing but disagreement.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/716602",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 613439,
+                "title": "Wednesday",
+                "year": "2006",
+                "poster_url": "https://image.tmdb.org/t/p/w500/aCOC1vLnRCtNqecfJ2qFBlMYDfr.jpg",
+                "description": "Wednesday is a story of life, love, loss, and redemption. It is divided into four separate segments: Luke & Lucy, Purgatory, Lyrics of a Lowly Life, and Narcissus Flower. Each segment details how different people deal with love and loss. These basic human emotions exist across the world, it's how we individually deal with them that separates and connects us all.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/613439",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 688225,
+                "title": "Wednesday",
+                "year": "2019",
+                "poster_url": "https://image.tmdb.org/t/p/w500/jzWjxTRddN8YkU7zPnfMJwma9IR.jpg",
+                "description": "Recently homeless and living in a car with her mother, a teenage girl commits a reckless act, desperate to rescue a vestige of their former life. Starring Mychala Lee and Chene Lawson. Directed by Daniel Willis; written by Jessica D. Shields.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/688225",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 117207,
+                "title": "Ash Wednesday",
+                "year": "1973",
+                "poster_url": "https://image.tmdb.org/t/p/w500/l7jtFC9QYmgdZSrmJfx1aHmMYjT.jpg",
+                "description": "Barbara gets secret plastic surgery in Switzerland in an attempt to save her marriage to Mark, but he doesn't seem interested in meeting her. She checks in to a ski resort to wait for Mark, and begins getting attention from young men. Her daughter tries to warn her that even though she has had the surgery it might be too late for her marriage, but she clings to the hope that Mark will come back once he sees her new look. Meanwhile, she must decide whether or not have an affair with a young man she's met.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/117207",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 26225,
+                "title": "Ash Wednesday",
+                "year": "2002",
+                "poster_url": "https://image.tmdb.org/t/p/w500/sKyxf1nGw0iCIjXzlq6lIsVqq0g.jpg",
+                "description": "In early 1980s Manhattan, a pair of Irish-American brothers become embroiled in a conflict with the Irish Mob.",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/26225",
+                "source_provider": "TMDb"
+            }
+        ],
+        "imdb_search_query": "Wednesday",
+        "imdb_search_page": 1,
+        "imdb_search_source": "TMDb",
+        "poster_url": "https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg",
+        "year": "2022",
+        "tmdb_id": 119051,
+        "imdb_id": 119051,
+        "tmdb_media_type": "tv",
+        "type": "series",
+        "imdb_rating": 8,
+        "imdb_vote_count": 499065,
+        "imdb_original_title": "Wednesday",
+        "source_url": "https://www.themoviedb.org/tv/119051",
+        "source_provider": "TMDb",
+        "imdb_selected_index": 0,
+        "imdb_selected_title": "Wednesday",
+        "description": "Smart, sarcastic and a little dead inside, Wednesday Addams investigates twisted mysteries while making new friends — and foes — at Nevermore Academy.",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Wednesday', 'series', ARRAY['Action'], 2022, 'Unknown', '480p', 'Smart, sarcastic and a little dead inside, Wednesday Addams investigates twisted mysteries while making new friends — and foes — at Nevermore Academy.', 'https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg', ARRAY['https://image.tmdb.org/t/p/w500/36xXlhEpQqVVPuiZhfoQuaY4OlA.jpg'], 'https://dramaflix.top/movie/101', NULL, NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n)\nRETURNING id;",
+        "neon_inserted": 2
     }
 ]

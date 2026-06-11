@@ -118,5 +118,5 @@ def build_movie_insert_sql(record):
         "INSERT INTO movies "
         f"({', '.join(columns)})\nVALUES (\n"
         f"{', '.join(values)}\n"
-        ");"
+        ")\nRETURNING id;"
     )

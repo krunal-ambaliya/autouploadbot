@@ -14,7 +14,7 @@ from parsing import (
     parse_message,
 )
 from storage import add_admin, is_admin, remove_admin, get_admins
-from tmdb_service import search_tmdb
+from tmdb_service import search_tmdb, search_tmdb_titles
 from validation import (
     extract_downloads_from_message,
     get_missing_record_fields,
@@ -32,7 +32,7 @@ def _manual_field_prompt(field_name):
         "title": (
             "Please send movie title only.\n"
             "Example: Interstellar\n"
-            "I will search IMDb and show matching results."
+            "I will search IMDb first and fall back to TMDb if needed."
         ),
         "description": "Please send movie description text only.",
         "links": (
@@ -53,6 +53,39 @@ def _manual_confirmation_markup(field_name):
             InlineKeyboardButton("Send Again", callback_data=f"manual_send_again:{field_name}"),
             InlineKeyboardButton("Cancel", callback_data="cancel_pending"),
         ]]
+    )
+
+
+async def _search_title_candidates(query_text):
+    imdb_results = await asyncio.to_thread(search_imdb_titles, query_text)
+    if imdb_results:
+        return "IMDb", imdb_results
+
+    tmdb_results = await asyncio.to_thread(search_tmdb_titles, query_text)
+    if tmdb_results:
+        return "TMDb", tmdb_results
+
+    return None, []
+
+
+async def _send_title_results(chat_id, application, context, query_text, source_name, results):
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    pending["imdb_search_results"] = results
+    pending["imdb_search_query"] = query_text
+    pending["imdb_search_page"] = 1
+    pending["imdb_search_source"] = source_name or "IMDb"
+    pending["stage"] = "awaiting_imdb_selection"
+    pending["is_fully_manual"] = False
+    context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(application, chat_id)
+
+    prompt_text = build_imdb_results_text(query_text, results, page=1, source_name=source_name or "IMDb")
+    reply_markup = build_imdb_results_markup(results, page=1)
+    await application.bot.send_message(
+        chat_id=chat_id,
+        text=prompt_text,
+        reply_markup=reply_markup,
+        disable_web_page_preview=True,
     )
 
 
@@ -245,6 +278,9 @@ def build_preview_text(record):
     media_type = record.get("tmdb_media_type") or record.get("type") or "movie"
     type_label = "Series" if media_type in {"tv", "series"} else "Movie"
     language = record.get("audio") or record.get("language") or "Unknown"
+    source_provider = record.get("source_provider")
+    imdb_rating = record.get("imdb_rating")
+    imdb_votes = record.get("imdb_vote_count")
     
     lines = [
         "🔍 *Preview*",
@@ -252,8 +288,19 @@ def build_preview_text(record):
         f"*Type:* {type_label}",
         f"*Year:* {record.get('year') or 'Unknown'}",
         f"*Language:* {language}",
-        f"*Description:* {description[:300]}...",
     ]
+
+    if source_provider:
+        lines.append(f"*Source:* {source_provider}")
+    if imdb_rating is not None:
+        rating_text = f"{imdb_rating}"
+        if imdb_votes is not None:
+            rating_text = f"{rating_text} ({imdb_votes} votes)"
+        lines.append(f"*IMDb Rating:* {rating_text}")
+
+    lines.extend([
+        f"*Description:* {description[:300]}...",
+    ])
 
     downloads = record.get("downloads") or {}
     if downloads:
@@ -427,19 +474,10 @@ async def _apply_manual_title(msg, context, pending, text):
     pending["movie"] = title
     pending["source_query"] = title
 
-    imdb_results = await asyncio.to_thread(search_imdb_titles, title)
-    if imdb_results:
-        pending["imdb_search_results"] = imdb_results
-        pending["imdb_search_query"] = title
-        pending["imdb_search_page"] = 1
-        pending["stage"] = "awaiting_imdb_selection"
+    search_source, search_results = await _search_title_candidates(title)
+    if search_results:
         context.chat_data[PENDING_KEY] = pending
-        _schedule_manual_timeout(context.application, msg.chat_id)
-        await msg.reply_text(
-            build_imdb_results_text(title, imdb_results, page=1),
-            reply_markup=build_imdb_results_markup(imdb_results, page=1),
-            disable_web_page_preview=True,
-        )
+        await _send_title_results(msg.chat_id, context.application, context, title, search_source or "IMDb", search_results)
         return
 
     fallback = await asyncio.to_thread(resolve_poster_for_title, title)
@@ -464,7 +502,7 @@ async def _apply_manual_title(msg, context, pending, text):
     context.chat_data[PENDING_KEY] = pending
     _schedule_manual_timeout(context.application, msg.chat_id)
     await msg.reply_text(
-        f"No IMDb results found for '{title}'. Please send another title."
+        f"No IMDb or TMDb results found for '{title}'. Please send another title."
     )
 
 
@@ -594,14 +632,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Manual upload started.\n"
             "Please send movie title only.\n"
             "Example: Interstellar\n"
-            "I will search IMDb and show matching results."
+            "I will search IMDb first, and you can use TMDb Search if you want TMDb results."
         )
         return
 
     if text.startswith("/start") or text.startswith("/help"):
         help_text = (
             "👋 **Welcome to the AutoUpload Bot!**\n\n"
-            "I can help you search TMDB for movie/series metadata and prepare posts for your channel.\n\n"
+            "I can help you search IMDb or TMDb for movie/series metadata and prepare posts for your channel.\n\n"
             "📜 **Available Commands:**\n"
             "• /manual - Start a fully manual upload flow.\n"
             "• /cancel - Stop the current process and start fresh.\n"
@@ -610,9 +648,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• /listadmins - List all current admins.\n"
             "• /help - Show this help message.\n\n"
             "💡 **How to use:**\n"
-            "1. Just send a movie title to search for metadata.\n"
-            "2. Or forward a post with download links.\n"
-            "3. Use the buttons to toggle between Movie/Series or enter details manually."
+            "1. Send a movie title to search IMDb first.\n"
+            "2. Use the **TMDb Search** button to search TMDb separately.\n"
+            "3. Or forward a post with download links.\n"
+            "4. Use the buttons to toggle between Movie/Series or enter details manually."
         )
         await msg.reply_text(help_text, parse_mode="Markdown")
         return
@@ -916,23 +955,15 @@ async def handle_search_again(update: Update, context: ContextTypes.DEFAULT_TYPE
         await query.answer("No title available to search.", show_alert=True)
         return
 
-    results = await asyncio.to_thread(search_imdb_titles, query_text)
+    search_source, results = await _search_title_candidates(query_text)
     if results:
-        pending["imdb_search_results"] = results
-        pending["imdb_search_query"] = query_text
-        pending["imdb_search_page"] = 1
-        pending["stage"] = "awaiting_imdb_selection"
-        pending["is_fully_manual"] = False
-        context.chat_data[PENDING_KEY] = pending
-        _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
-
-        prompt_text = build_imdb_results_text(query_text, results, page=1)
-        reply_markup = build_imdb_results_markup(results, page=1)
-        await context.application.bot.send_message(
-            chat_id=query.message.chat_id if query.message else query.from_user.id,
-            text=prompt_text,
-            reply_markup=reply_markup,
-            disable_web_page_preview=True,
+        await _send_title_results(
+            query.message.chat_id if query.message else query.from_user.id,
+            context.application,
+            context,
+            query_text,
+            search_source or "IMDb",
+            results,
         )
 
         await query.answer()
@@ -943,10 +974,60 @@ async def handle_search_again(update: Update, context: ContextTypes.DEFAULT_TYPE
     context.chat_data[PENDING_KEY] = pending
     _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
 
-    prompt_text = f"No IMDb results found for '{query_text}'. Please send another title."
+    prompt_text = f"No IMDb or TMDb results found for '{query_text}'. Please send another title."
     await context.application.bot.send_message(
         chat_id=query.message.chat_id if query.message else query.from_user.id,
         text=prompt_text,
+    )
+
+    await query.answer()
+
+
+async def handle_tmdb_search_results(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    user_id = query.from_user.id
+    if not is_admin(user_id):
+        await query.answer("You are not authorized.", show_alert=True)
+        return
+
+    pending = dict(context.chat_data.get(PENDING_KEY) or {})
+    query_text = (
+        pending.get("imdb_search_query")
+        or pending.get("movie")
+        or pending.get("source_query")
+        or pending.get("last_query")
+        or ""
+    ).strip()
+
+    if not query_text:
+        await query.answer("No title available to search.", show_alert=True)
+        return
+
+    results = await asyncio.to_thread(search_tmdb_titles, query_text)
+    if not results:
+        await query.answer("No TMDb results found.", show_alert=True)
+        return
+
+    chat_id = query.message.chat_id if query.message else query.from_user.id
+    pending["imdb_search_results"] = results
+    pending["imdb_search_query"] = query_text
+    pending["imdb_search_page"] = 1
+    pending["imdb_search_source"] = "TMDb"
+    pending["stage"] = "awaiting_imdb_selection"
+    pending["is_fully_manual"] = False
+    context.chat_data[PENDING_KEY] = pending
+    _schedule_manual_timeout(context.application, chat_id)
+
+    prompt_text = build_imdb_results_text(query_text, results, page=1, source_name="TMDb")
+    reply_markup = build_imdb_results_markup(results, page=1)
+    await context.application.bot.send_message(
+        chat_id=chat_id,
+        text=prompt_text,
+        reply_markup=reply_markup,
+        disable_web_page_preview=True,
     )
 
     await query.answer()
@@ -1057,7 +1138,12 @@ async def handle_imdb_results_page(update: Update, context: ContextTypes.DEFAULT
     _schedule_manual_timeout(context.application, query.message.chat_id if query.message else query.from_user.id)
 
     query_text = pending.get("imdb_search_query") or pending.get("movie") or "title"
-    prompt_text = build_imdb_results_text(query_text, results, page=page)
+    prompt_text = build_imdb_results_text(
+        query_text,
+        results,
+        page=page,
+        source_name=pending.get("imdb_search_source") or "IMDb",
+    )
     reply_markup = build_imdb_results_markup(results, page=page)
 
     if query.message and query.message.caption is not None:
@@ -1102,10 +1188,22 @@ async def handle_imdb_select(update: Update, context: ContextTypes.DEFAULT_TYPE)
         pending["poster_url"] = selected.get("poster_url")
     if selected.get("year"):
         pending["year"] = selected.get("year")
+    if selected.get("end_year") and not pending.get("year"):
+        pending["year"] = selected.get("end_year")
 
     pending["tmdb_id"] = selected.get("tmdb_id")
+    pending["imdb_id"] = selected.get("imdb_id") or selected.get("tmdb_id")
     pending["tmdb_media_type"] = selected.get("media_type") or "movie"
     pending["type"] = normalize_media_type(pending["tmdb_media_type"])
+    if selected.get("rating") is not None:
+        pending["imdb_rating"] = selected.get("rating")
+    if selected.get("vote_count") is not None:
+        pending["imdb_vote_count"] = selected.get("vote_count")
+    if selected.get("original_title"):
+        pending["imdb_original_title"] = selected.get("original_title")
+    if selected.get("source_url"):
+        pending["source_url"] = selected.get("source_url")
+    pending["source_provider"] = selected.get("source_provider") or "IMDb"
     pending["stage"] = "review"
     pending["imdb_selected_index"] = index
     pending["imdb_selected_title"] = selected_title
