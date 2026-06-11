@@ -36,7 +36,7 @@ def format_channel_message(record):
 <b>Type:</b> {html.escape(str(media_type))}
 
 📝 <b>Description:</b>
-{html.escape(description)}{links_text}
+        {html.escape(description)}{links_text}
     """.strip()
     
     return message
@@ -59,25 +59,27 @@ def _build_movie_url(record):
     if movie_id in (None, "", False):
         return None
 
-    template = (
-        os.getenv("MOVIE_PAGE_URL_TEMPLATE")
-        or os.getenv("MOVIE_PAGE_URL")
-        or os.getenv("MOVIE_PAGE_BASE_URL")
-    )
-    if not template:
+    template = os.getenv("MOVIE_PAGE_URL_TEMPLATE")
+    if template:
+        template = template.strip()
+        if template:
+            if "{id}" in template or "{movie_id}" in template:
+                return template.format(id=movie_id, movie_id=movie_id)
+            if template.endswith("/"):
+                return f"{template}{movie_id}"
+            return f"{template}/{movie_id}"
+
+    base_url = os.getenv("MOVIE_PAGE_BASE_URL") or os.getenv("MOVIE_PAGE_URL")
+    if not base_url:
         return None
 
-    template = template.strip()
-    if not template:
+    base_url = base_url.strip().rstrip("/")
+    if not base_url:
         return None
 
-    if "{id}" in template or "{movie_id}" in template:
-        return template.format(id=movie_id, movie_id=movie_id)
-
-    if template.endswith("/"):
-        return f"{template}{movie_id}"
-
-    return f"{template}/{movie_id}"
+    media_type = str(record.get("type") or record.get("tmdb_media_type") or "movie").strip().lower()
+    page_type = "series" if media_type in {"series", "tv"} else "movie"
+    return f"{base_url}/{page_type}/{movie_id}"
 
 
 def _build_notification_markup(record):
