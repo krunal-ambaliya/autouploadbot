@@ -1431,5 +1431,56 @@
         ],
         "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'The Avengers', 'movie', ARRAY['Action'], 2012, 'Unknown', '1080p', 'When an unexpected enemy emerges and threatens global safety and security, Nick Fury, director of the international peacekeeping agency known as S.H.I.E.L.D., finds himself in need of a team to pull the world back from the brink of disaster. Spanning the globe, a daring recruitment effort begins!', 'https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg', ARRAY['https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg'], NULL, NULL, 'https://example.com', NULL, 'published', ARRAY['auto', 'generated'], 0\n)\nRETURNING id;",
         "neon_inserted": 4
+    },
+    {
+        "chat_id": 1800599162,
+        "downloads": {
+            "480p": "https://t.me/infinite_kdrama_bot?start=BQADAQADKg8AAmjCgUa2gtKD3yGy-hYE"
+        },
+        "is_fully_manual": false,
+        "stage": "review",
+        "movie": "Pritam and Pedro",
+        "source_query": "Pritam and Pedro",
+        "imdb_search_results": [
+            {
+                "tmdb_id": 243206,
+                "title": "Pritam and Pedro",
+                "year": "2026",
+                "poster_url": "https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg",
+                "description": "The dynamic between the two contrasting personalities, a seasoned cop who prefers old-school methods and a tech-savvy cop who relies on modern technology for investigations, as they navigate their partnership in solving crimes.",
+                "media_type": "tv",
+                "source_url": "https://www.themoviedb.org/tv/243206",
+                "source_provider": "TMDb"
+            },
+            {
+                "tmdb_id": 1727469,
+                "title": "Pritam and pedro",
+                "year": null,
+                "poster_url": null,
+                "description": "",
+                "media_type": "movie",
+                "source_url": "https://www.themoviedb.org/movie/1727469",
+                "source_provider": "TMDb"
+            }
+        ],
+        "imdb_search_query": "Pritam and Pedro",
+        "imdb_search_page": 1,
+        "imdb_search_source": "TMDb",
+        "description": "The dynamic between the two contrasting personalities, a seasoned cop who prefers old-school methods and a tech-savvy cop who relies on modern technology for investigations, as they navigate their partnership in solving crimes.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg",
+        "year": "2026",
+        "tmdb_id": 243206,
+        "imdb_id": 243206,
+        "tmdb_media_type": "tv",
+        "type": "series",
+        "source_url": "https://www.themoviedb.org/tv/243206",
+        "source_provider": "TMDb",
+        "imdb_selected_index": 0,
+        "imdb_selected_title": "Pritam and Pedro",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Pritam and Pedro', 'series', ARRAY['Action'], 2026, 'Unknown', '480p', 'The dynamic between the two contrasting personalities, a seasoned cop who prefers old-school methods and a tech-savvy cop who relies on modern technology for investigations, as they navigate their partnership in solving crimes.', 'https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg', ARRAY['https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg'], 'https://t.me/infinite_kdrama_bot?start=BQADAQADKg8AAmjCgUa2gtKD3yGy-hYE', NULL, NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n)\nRETURNING id;",
+        "neon_inserted": 9
     }
 ]

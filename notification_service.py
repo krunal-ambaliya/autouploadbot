@@ -11,36 +11,33 @@ logger = logging.getLogger(__name__)
 
 
 def format_channel_message(record):
-    """Format a message for the Telegram channel."""
+    """Format a simple Telegram channel message."""
     title = record.get("movie") or "Unknown"
     year = record.get("year") or "N/A"
-    media_type = record.get("type", "movie").upper()
-    
+    media_type = str(record.get("type") or "Movie").title()
+    description = (record.get("description") or "No description available.").strip()
+
     downloads = record.get("downloads", {})
-    description = (record.get("description") or "").strip()
-    
-    # Build quality/links section
-    links_text = ""
+
+    message = (
+        f"🎥 <b>New {html.escape(media_type)} Uploaded</b>\n\n"
+        f"📌 <b>Title:</b> {html.escape(str(title))}\n"
+        f"📅 <b>Year:</b> {html.escape(str(year))}\n"
+        f"🎭 <b>Type:</b> {html.escape(media_type)}\n\n"
+        f"📝 <b>Description</b>\n"
+        f"{html.escape(description)}"
+    )
+
     if downloads:
-        links_text = "\n\n🔗 <b>Download Links:</b>\n"
+        message += "\n\n🔗 <b>Download Links</b>\n\n"
         for quality, link in downloads.items():
-            quality_upper = quality.upper() if quality else "UNKNOWN"
-            links_text += f"{html.escape(quality_upper)}: {html.escape(str(link), quote=False)}\n"
-    
-    # Format message
-    message = f"""
-🎬 <b>NEW {html.escape(media_type)} UPLOADED!</b>
+            quality = quality.upper() if quality else "UNKNOWN"
+            message += (
+                f"<b>{html.escape(quality)}:</b> "
+                f"{html.escape(str(link), quote=False)}\n"
+            )
 
-<b>Title:</b> {html.escape(str(title))}
-<b>Year:</b> {html.escape(str(year))}
-<b>Type:</b> {html.escape(str(media_type))}
-
-📝 <b>Description:</b>
-        {html.escape(description)}{links_text}
-    """.strip()
-    
-    return message
-
+    return message.strip()
 
 def _get_notification_image(record):
     poster_url = record.get("poster_url")
