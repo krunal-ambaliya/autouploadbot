@@ -28,14 +28,14 @@ def format_channel_message(record):
         f"{html.escape(description)}"
     )
 
-    if downloads:
-        message += "\n\n🔗 <b>Download Links</b>\n\n"
-        for quality, link in downloads.items():
-            quality = quality.upper() if quality else "UNKNOWN"
-            message += (
-                f"<b>{html.escape(quality)}:</b> "
-                f"{html.escape(str(link), quote=False)}\n"
-            )
+    # if downloads:
+    #     message += "\n\n🔗 <b>Download Links</b>\n\n"
+    #     for quality, link in downloads.items():
+    #         quality = quality.upper() if quality else "UNKNOWN"
+    #         message += (
+    #             f"<b>{html.escape(quality)}:</b> "
+    #             f"{html.escape(str(link), quote=False)}\n"
+    #         )
 
     return message.strip()
 

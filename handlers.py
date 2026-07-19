@@ -1,8 +1,10 @@
 import asyncio
+import logging
 import threading
 from datetime import datetime
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.error import TimedOut
 from telegram.ext import ContextTypes
 
 from config import PENDING_KEY
@@ -25,6 +27,7 @@ from sql_utils import normalize_media_type
 
 MANUAL_TIMEOUT_SECONDS = 300
 MANUAL_TIMEOUTS = {}
+logger = logging.getLogger(__name__)
 
 
 def _manual_field_prompt(field_name):
@@ -137,11 +140,32 @@ def _manual_value_summary(field_name, pending):
 
 
 async def _send_manual_confirmation(msg, pending, field_name):
-    await msg.reply_text(
+    await _reply_text_safe(
+        msg,
         _manual_value_summary(field_name, pending),
         reply_markup=_manual_confirmation_markup(field_name),
         disable_web_page_preview=True,
     )
+
+
+async def _reply_text_safe(msg, text, **kwargs):
+    send_kwargs = {
+        "connect_timeout": 10,
+        "read_timeout": 30,
+        "write_timeout": 30,
+        "pool_timeout": 30,
+    }
+    send_kwargs.update(kwargs)
+
+    for attempt in range(2):
+        try:
+            return await msg.reply_text(text, **send_kwargs)
+        except TimedOut as exc:
+            if attempt == 0:
+                await asyncio.sleep(1)
+                continue
+            logger.warning("Timed out sending reply to chat %s: %s", getattr(msg, "chat_id", None), exc)
+            return None
 
 
 def _missing_fields_prompt(missing_fields):
@@ -501,7 +525,8 @@ async def _apply_manual_title(msg, context, pending, text):
     pending["stage"] = "awaiting_manual_title"
     context.chat_data[PENDING_KEY] = pending
     _schedule_manual_timeout(context.application, msg.chat_id)
-    await msg.reply_text(
+    await _reply_text_safe(
+        msg,
         f"No IMDb or TMDb results found for '{title}'. Please send another title."
     )
 

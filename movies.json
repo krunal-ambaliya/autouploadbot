@@ -1482,5 +1482,24 @@
         ],
         "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Pritam and Pedro', 'series', ARRAY['Action'], 2026, 'Unknown', '480p', 'The dynamic between the two contrasting personalities, a seasoned cop who prefers old-school methods and a tech-savvy cop who relies on modern technology for investigations, as they navigate their partnership in solving crimes.', 'https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg', ARRAY['https://image.tmdb.org/t/p/w500/ajkBXNt5tcNsc0cVpTSZW24oyUg.jpg'], 'https://t.me/infinite_kdrama_bot?start=BQADAQADKg8AAmjCgUa2gtKD3yGy-hYE', NULL, NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n)\nRETURNING id;",
         "neon_inserted": 9
+    },
+    {
+        "movie": "Alpha",
+        "description": "When Sita, a highly trained assassin raised in isolation as a super-soldier by a rogue commander, discovers the dark truth about her family and her stolen childhood, she teams up with her long lost sister to take down her creator and his illicit military program.",
+        "poster_url": "https://image.tmdb.org/t/p/w500/bPtRt3ajQ0EkyeQ1O6iJwAIi9Py.jpg",
+        "year": "2026",
+        "tmdb_id": 1122030,
+        "tmdb_media_type": "movie",
+        "type": "movie",
+        "downloads": {
+            "480p": "https://inshorturl.in/elZqDRT"
+        },
+        "source_query": "alpha",
+        "stage": "review",
+        "sample_images": [
+            "https://image.tmdb.org/t/p/w500/bPtRt3ajQ0EkyeQ1O6iJwAIi9Py.jpg"
+        ],
+        "insert_query": "INSERT INTO movies (title, type, genre, year, language, quality, description, poster_url, sample_images, download_480p, download_720p, download_1080p, download_2k, status, tags, views)\nVALUES (\n'Alpha', 'movie', ARRAY['Action'], 2026, 'Unknown', '480p', 'When Sita, a highly trained assassin raised in isolation as a super-soldier by a rogue commander, discovers the dark truth about her family and her stolen childhood, she teams up with her long lost sister to take down her creator and his illicit military program.', 'https://image.tmdb.org/t/p/w500/bPtRt3ajQ0EkyeQ1O6iJwAIi9Py.jpg', ARRAY['https://image.tmdb.org/t/p/w500/bPtRt3ajQ0EkyeQ1O6iJwAIi9Py.jpg'], 'https://inshorturl.in/elZqDRT', NULL, NULL, NULL, 'published', ARRAY['auto', 'generated'], 0\n)\nRETURNING id;",
+        "neon_inserted": 14
     }
 ]

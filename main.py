@@ -30,7 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-application = ApplicationBuilder().token(BOT_TOKEN).build()
+application = (
+    ApplicationBuilder()
+    .token(BOT_TOKEN)
+    .connect_timeout(10)
+    .read_timeout(30)
+    .write_timeout(30)
+    .pool_timeout(30)
+    .build()
+)
 
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL", "").strip()
 WEBHOOK_LOOP = None
